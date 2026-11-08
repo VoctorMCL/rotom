@@ -1,0 +1,113 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-11-07T00:00:00Z",
+  "items": [
+    {
+      "id": "rec-001",
+      "type": "recipe",
+      "title": "Pastel de Choclo",
+      "description": "El clásico pastel de choclo chileno, con pino de carne, pollo, huevo duro y aceituna.",
+      "coverImage": "assets/images/recipes/pastel-de-choclo.webp",
+      "tags": ["chilena", "horno", "almuerzo"],
+      "createdAt": "2026-11-01T00:00:00Z",
+      "servings": 6,
+      "prepTimeMinutes": 40,
+      "cookTimeMinutes": 45,
+      "difficulty": "intermedio",
+      "ingredients": [
+        { "name": "Choclo desgranado", "quantity": "8 unidades", "category": "vegetal", "optional": false },
+        { "name": "Carne molida", "quantity": "500g", "category": "proteína", "optional": false },
+        { "name": "Pechuga de pollo", "quantity": "2 trozos", "category": "proteína", "optional": false },
+        { "name": "Cebolla", "quantity": "3 unidades", "category": "vegetal", "optional": false },
+        { "name": "Huevo duro", "quantity": "2 unidades", "category": "proteína", "optional": false },
+        { "name": "Aceitunas negras", "quantity": "12 unidades", "category": "vegetal", "optional": true },
+        { "name": "Pasas", "quantity": "1/4 taza", "category": "otro", "optional": true },
+        { "name": "Albahaca fresca", "quantity": "hojas al gusto", "category": "condimento", "optional": false },
+        { "name": "Comino", "quantity": "1 cucharadita", "category": "condimento", "optional": false },
+        { "name": "Azúcar", "quantity": "2 cucharadas", "category": "otro", "optional": false },
+        { "name": "Mantequilla", "quantity": "2 cucharadas", "category": "lácteo", "optional": false },
+        { "name": "Leche", "quantity": "1/2 taza", "category": "lácteo", "optional": false },
+        { "name": "Sal y pimienta", "quantity": "al gusto", "category": "condimento", "optional": false }
+      ],
+      "steps": [
+        { "order": 1, "instruction": "Desgranar los choclos y molerlos en procesadora hasta obtener una pasta. Reservar.", "image": "assets/images/recipes/pastel-choclo-step1.webp" },
+        { "order": 2, "instruction": "En una olla, cocinar la pasta de choclo con mantequilla, leche, albahaca y azúcar a fuego medio, revolviendo constantemente hasta que espese (~20 min). Reservar.", "durationMinutes": 20 },
+        { "order": 3, "instruction": "Preparar el pino: freír las cebollas picadas en cuadritos con aceite. Agregar la carne molida, comino, sal y pimienta. Cocinar hasta dorar.", "durationMinutes": 15 },
+        { "order": 4, "instruction": "Hervir las pechugas de pollo y desmenuzar. Hervir los huevos y cortar en rodajas." },
+        { "order": 5, "instruction": "Precalentar el horno a 200°C. En una fuente de greda, colocar el pino de carne, encima los trozos de pollo, rodajas de huevo, aceitunas y pasas." },
+        { "order": 6, "instruction": "Cubrir todo con la pasta de choclo. Espolvorear azúcar por encima.", "image": "assets/images/recipes/pastel-choclo-step6.webp" },
+        { "order": 7, "instruction": "Hornear por 40-45 minutos hasta que la superficie esté dorada.", "durationMinutes": 45 }
+      ],
+      "nutrition": { "calories": 520, "protein": "32g", "carbs": "45g", "fat": "22g" }
+    },
+    {
+      "id": "rec-002",
+      "type": "recipe",
+      "title": "Sopaipillas Pasadas",
+      "description": "Sopaipillas de zapallo fritas bañadas en chancaca con canela y cáscara de naranja. El sabor de los días lluviosos en Chile.",
+      "coverImage": "assets/images/recipes/sopaipillas-pasadas.webp",
+      "tags": ["chilena", "postre", "lluvia", "invierno"],
+      "createdAt": "2026-11-02T00:00:00Z",
+      "servings": 8,
+      "prepTimeMinutes": 30,
+      "cookTimeMinutes": 25,
+      "difficulty": "fácil",
+      "ingredients": [
+        { "name": "Zapallo camote cocido", "quantity": "500g", "category": "vegetal", "optional": false },
+        { "name": "Harina", "quantity": "4 tazas", "category": "grano", "optional": false },
+        { "name": "Polvo de hornear", "quantity": "1 cucharada", "category": "otro", "optional": false },
+        { "name": "Manteca", "quantity": "2 cucharadas", "category": "otro", "optional": false },
+        { "name": "Sal", "quantity": "1 pizca", "category": "condimento", "optional": false },
+        { "name": "Aceite para freír", "quantity": "suficiente", "category": "líquido", "optional": false },
+        { "name": "Chancaca (panela)", "quantity": "500g", "category": "otro", "optional": false },
+        { "name": "Canela en rama", "quantity": "2 ramitas", "category": "condimento", "optional": false },
+        { "name": "Cáscara de naranja", "quantity": "1 unidad", "category": "otro", "optional": false },
+        { "name": "Clavo de olor", "quantity": "3 unidades", "category": "condimento", "optional": true },
+        { "name": "Agua", "quantity": "2 tazas", "category": "líquido", "optional": false }
+      ],
+      "steps": [
+        { "order": 1, "instruction": "Moler el zapallo cocido hasta hacer un puré suave." },
+        { "order": 2, "instruction": "Mezclar harina, polvo de hornear y sal. Incorporar el puré de zapallo y la manteca. Amasar hasta obtener una masa homogénea. Dejar reposar 15 min.", "durationMinutes": 15 },
+        { "order": 3, "instruction": "Estirar la masa (5mm de grosor) y cortar círculos con un vaso o cortador.", "image": "assets/images/recipes/sopaipillas-step3.webp" },
+        { "order": 4, "instruction": "Pinchar cada disco con un tenedor. Freír en aceite caliente hasta que se doren por ambos lados. Escurrir en papel absorbente.", "durationMinutes": 15 },
+        { "order": 5, "instruction": "Preparar la chancaca: disolver la chancaca en agua con canela, cáscara de naranja y clavos de olor. Hervir a fuego medio hasta formar un almíbar espeso (~15 min).", "durationMinutes": 15 },
+        { "order": 6, "instruction": "Sumergir las sopaipillas fritas en el almíbar de chancaca caliente. Servir de inmediato.", "image": "assets/images/recipes/sopaipillas-step6.webp" }
+      ],
+      "nutrition": { "calories": 380, "protein": "6g", "carbs": "62g", "fat": "14g" }
+    },
+    {
+      "id": "lnd-001",
+      "type": "laundry",
+      "title": "Lavado de Ropa Blanca de Algodón",
+      "description": "Guía completa para mantener impecable la ropa blanca de algodón: camisetas, sábanas, toallas y camisas.",
+      "coverImage": "assets/images/laundry/ropa-blanca-algodon.webp",
+      "tags": ["algodón", "blanco", "básico"],
+      "createdAt": "2026-11-03T00:00:00Z",
+      "garmentType": "Algodón blanco",
+      "fabricCare": [
+        { "icon": "assets/images/laundry/symbols/wash-60.svg", "label": "Lavado 60°C", "description": "Lavar a máxima 60 grados centígrados" },
+        { "icon": "assets/images/laundry/symbols/bleach-allowed.svg", "label": "Blanqueador permitido", "description": "Se puede usar cloro o blanqueador de oxígeno" },
+        { "icon": "assets/images/laundry/symbols/tumble-dry-normal.svg", "label": "Secadora normal", "description": "Se puede usar secadora a temperatura normal" },
+        { "icon": "assets/images/laundry/symbols/iron-high.svg", "label": "Plancha alta", "description": "Planchar a temperatura alta (200°C)" }
+      ],
+      "washTemp": "40°C – 60°C",
+      "dryMethod": "Secadora normal o tendedero al sol",
+      "ironTemp": "Alta (200°C) con vapor",
+      "steps": [
+        { "order": 1, "instruction": "Separar la ropa blanca del resto. Revisar bolsillos y cerrar cierres." },
+        { "order": 2, "instruction": "Pre-tratar manchas con jabón de barra o quitamanchas. Dejar actuar 10-15 min.", "durationMinutes": 15 },
+        { "order": 3, "instruction": "Cargar la lavadora sin sobrepasar 3/4 de capacidad.", "image": "assets/images/laundry/carga-lavadora.webp" },
+        { "order": 4, "instruction": "Agregar detergente (dosis indicada) y blanqueador de oxígeno. Seleccionar ciclo algodón 40-60°C." },
+        { "order": 5, "instruction": "Al terminar, sacar inmediatamente para evitar malos olores." },
+        { "order": 6, "instruction": "Tender al sol (el sol blanquea naturalmente) o usar secadora en ciclo normal." },
+        { "order": 7, "instruction": "Planchar con vapor a temperatura alta si es necesario. Doblar y guardar." }
+      ],
+      "tips": [
+        "No mezclar con ropa de color, ni siquiera clara",
+        "El sol es el mejor blanqueador natural y es gratis",
+        "Agregar 1/2 taza de bicarbonato al lavado para blanquear",
+        "Lavar sábanas y toallas aparte de ropa de vestir"
+      ]
+    }
+  ]
+}

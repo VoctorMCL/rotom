@@ -1,0 +1,118 @@
+/* ─── Rotom — Global Styles ─── */
+
+:root {
+  /* Dark theme (default) */
+  --bg-primary: #000000;
+  --bg-secondary: #1c1c1e;
+  --bg-tertiary: #2c2c2e;
+  --bg-elevated: #1c1c1e;
+
+  --text-primary: #ffffff;
+  --text-secondary: #8e8e93;
+  --text-tertiary: #636366;
+
+  --accent: #ff3b30;
+  --accent-secondary: #ff6b35;
+  --success: #30d158;
+  --warning: #ffd60a;
+  --info: #0a84ff;
+
+  --border: #38383a;
+  --separator: #2c2c2e;
+
+  --card-radius: 16px;
+  --input-radius: 12px;
+
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg-primary: #f2f2f7;
+    --bg-secondary: #ffffff;
+    --bg-tertiary: #f2f2f7;
+    --bg-elevated: #ffffff;
+
+    --text-primary: #000000;
+    --text-secondary: #6c6c70;
+    --text-tertiary: #aeaeb2;
+
+    --border: #d1d1d6;
+    --separator: #e5e5ea;
+
+    color-scheme: light;
+  }
+}
+
+/* ─── Reset & Base ─── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display',
+    'Helvetica Neue', Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior: none;
+
+  /* iOS Safe Area */
+  padding:
+    env(safe-area-inset-top)
+    env(safe-area-inset-right)
+    env(safe-area-inset-bottom)
+    env(safe-area-inset-left);
+}
+
+/* ─── iOS PWA body scroll lock ─── */
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+}
+
+app-root {
+  display: block;
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ─── Typography ─── */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+}
+
+/* ─── Utility Classes ─── */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+/* ─── Scrollbar (webkit) ─── */
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
