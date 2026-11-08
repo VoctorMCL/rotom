@@ -1,4 +1,5 @@
 // ─── Estado Dinámico Persistido en IndexedDB ───
+import type { Ingredient, Step, CareSymbol } from './catalog.models';
 
 /** Tiendas de compras frecuentes */
 export type SupermarketStore = 'Éxito' | 'D1' | 'Otro';
@@ -25,6 +26,35 @@ export interface ShoppingItem {
   updatedAt?: string;
 }
 
+/** Recetas o guías de lavado creadas o modificadas por el usuario */
+export interface CustomCatalogItem {
+  id: string;                // ej: user-rec-1234 o user-lnd-1234
+  type: 'recipe' | 'laundry';
+  title: string;
+  description: string;
+  coverImage?: string;
+  tags: string[];
+  createdAt: string;
+
+  // Campos específicos de Receta
+  servings?: number;
+  prepTimeMinutes?: number;
+  cookTimeMinutes?: number;
+  difficulty?: 'fácil' | 'intermedio' | 'avanzado';
+  ingredients?: Ingredient[];
+
+  // Campos específicos de Lavado
+  garmentType?: string;
+  fabricCare?: CareSymbol[];
+  washTemp?: string;
+  dryMethod?: string;
+  ironTemp?: string;
+  tips?: string[];
+
+  // Pasos comunes
+  steps: Step[];
+}
+
 /** Tarea en la To-Do list */
 export interface TodoItem {
   id?: number;
@@ -48,15 +78,16 @@ export interface DailyCheckIn {
   createdAt: string;
 }
 
-/** Evento del calendario */
+/** Evento del calendario con vinculación a recetas y repetición semanal */
 export interface CalendarEvent {
   id?: number;
   title: string;
   date: string;              // YYYY-MM-DD
-  time?: string;             // HH:mm
-  type: 'comida' | 'lavado' | 'tarea' | 'evento' | 'check-in';
-  linkedItemId?: string;     // ID de receta/lavado/todo vinculado
-  notes?: string;
+  time?: string;             // HH:mm o "almuerzo" | "cena"
+  type: 'comida' | 'lavado' | 'tarea' | 'evento';
+  linkedItemId?: string;     // ID de receta o lavado de la Wiki
+  linkedItemTitle?: string;  // Título para navegación directa
+  recurrenceSeriesId?: string; // ID único si es una serie recurrente
   completed: boolean;
   createdAt: string;
 }

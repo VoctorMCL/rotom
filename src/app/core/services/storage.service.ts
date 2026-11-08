@@ -9,8 +9,9 @@ import type {
   DailyCheckIn,
   CalendarEvent,
   UserSettings,
+  CustomCatalogItem,
 } from '../models/state.models';
-import type { Recipe, Ingredient } from '../models/catalog.models';
+import type { Recipe, Ingredient, Step, CatalogItem, LaundryGuide } from '../models/catalog.models';
 
 // ─── Dexie Database Definition ───
 export class RotomDB extends Dexie {
@@ -20,16 +21,18 @@ export class RotomDB extends Dexie {
   dailyCheckIns!: Table<DailyCheckIn, number>;
   calendarEvents!: Table<CalendarEvent, number>;
   userSettings!: Table<UserSettings, number>;
+  customCatalogItems!: Table<CustomCatalogItem, string>;
 
   constructor() {
     super('Rotom');
-    this.version(1).stores({
+    this.version(2).stores({
       stepProgress: '++id, catalogItemId, [catalogItemId+stepOrder]',
       shoppingItems: '++id, name, store, category, checked, sourceRecipeId',
       todoItems: '++id, category, priority, completed, dueDate',
       dailyCheckIns: '++id, &date',
       calendarEvents: '++id, date, type, completed',
       userSettings: '++id, &key',
+      customCatalogItems: '&id, type, title',
     });
   }
 }
@@ -39,11 +42,18 @@ export class StorageService {
   private readonly platformId = inject(PLATFORM_ID);
   private db?: RotomDB;
 
+  /**
+   * Callback invocado ante cualquier mutación de datos en Dexie
+   * para disparar el guardado automático del PC en segundo plano.
+   */
+  onDataChanged?: () => void;
+
   // ─── Reactive Signals ───
   readonly shoppingList = signal<ShoppingItem[]>([]);
   readonly todoList = signal<TodoItem[]>([]);
   readonly checkIns = signal<DailyCheckIn[]>([]);
   readonly calendarEvents = signal<CalendarEvent[]>([]);
+  readonly customCatalogItems = signal<CustomCatalogItem[]>([]);
 
   // ─── Safari & Storage Status Signals ───
   readonly isPersistent = signal(false);
@@ -101,15 +111,18 @@ export class StorageService {
       this.refreshTodoList(),
       this.refreshCheckIns(),
       this.refreshCalendarEvents(),
+      this.refreshCustomItems(),
       this.checkPersistedStatus(),
     ]);
   }
 
+  private notifyChange(): void {
+    if (this.onDataChanged) {
+      this.onDataChanged();
+    }
+  }
+
   // ─── Safari WebKit Persistent Storage Check ───
-  /**
-   * En iOS Safari, persist() SOLO se puede ejecutar ante un gesto de usuario explícito.
-   * Al iniciar, usamos persisted() que es de solo lectura y no arroja error.
-   */
   async checkPersistedStatus(): Promise<boolean> {
     if (typeof navigator !== 'undefined' && navigator.storage?.persisted) {
       try {
@@ -123,10 +136,6 @@ export class StorageService {
     return false;
   }
 
-  /**
-   * Llamado únicamente al pulsar el botón del usuario (Touch event).
-   * En iOS Safari, las PWAs instaladas en la pantalla de inicio tienen aislamiento permanente.
-   */
   async requestPersistentStorage(): Promise<boolean> {
     if (typeof navigator !== 'undefined' && navigator.storage?.persist) {
       try {
@@ -134,10 +143,9 @@ export class StorageService {
         this.isPersistent.set(granted);
         return granted;
       } catch (err) {
-        console.warn('Storage persist request ignored by browser:', err);
+        console.warn('Storage persist request ignored:', err);
       }
     }
-    // Si está en Standalone PWA en iOS, WebKit preserva los datos
     if (this.isStandalone()) {
       this.isPersistent.set(true);
       return true;
@@ -145,13 +153,129 @@ export class StorageService {
     return false;
   }
 
-  // ─── Step Progress (Wiki) ───
+  // ─── Custom Catalog Items (Crear Recetas & Lavado por Usuario) ───
+  async refreshCustomItems(): Promise<void> {
+    if (!this.db) return;
+    const items = await this.db.customCatalogItems.toArray();
+    this.customCatalogItems.set(items);
+  }
+
+  async addCustomItem(item: CustomCatalogItem): Promise<void> {
+    if (!this.db) return;
+    await this.db.customCatalogItems.put(item);
+    await this.refreshCustomItems();
+    this.notifyChange();
+  }
+
+  async updateCustomItem(item: CustomCatalogItem): Promise<void> {
+    if (!this.db) return;
+    await this.db.customCatalogItems.put(item);
+    await this.refreshCustomItems();
+    this.notifyChange();
+  }
+
+  async deleteCustomItem(id: string): Promise<void> {
+    if (!this.db) return;
+    await this.db.customCatalogItems.delete(id);
+    await this.refreshCustomItems();
+    this.notifyChange();
+  }
+
+  /**
+   * Añade un paso tanto a una receta/guía creada por el usuario como a una del catálogo base.
+   */
+  async addStepToCatalogItem(
+    itemId: string,
+    newStepText: string,
+    duration?: number,
+    baseItem?: CatalogItem
+  ): Promise<void> {
+    if (!this.db) return;
+    const existing = await this.db.customCatalogItems.get(itemId);
+    if (existing) {
+      const order = existing.steps.length + 1;
+      existing.steps.push({
+        order,
+        instruction: newStepText,
+        durationMinutes: duration,
+      });
+      await this.db.customCatalogItems.put(existing);
+      await this.refreshCustomItems();
+      this.notifyChange();
+      return;
+    }
+
+    // Si es un ítem default del bundle; lo convertimos en editable en Dexie preservando todo su contenido
+    if (baseItem) {
+      const clonedSteps = [...baseItem.steps];
+      const newOrder = clonedSteps.length + 1;
+      clonedSteps.push({
+        order: newOrder,
+        instruction: newStepText,
+        durationMinutes: duration,
+      });
+
+      const customWrapper: CustomCatalogItem = {
+        id: baseItem.id,
+        type: baseItem.type,
+        title: baseItem.title,
+        description: baseItem.description,
+        coverImage: baseItem.coverImage,
+        tags: [...baseItem.tags],
+        createdAt: new Date().toISOString(),
+        steps: clonedSteps,
+      };
+
+      if (baseItem.type === 'recipe') {
+        const r = baseItem as Recipe;
+        customWrapper.servings = r.servings;
+        customWrapper.prepTimeMinutes = r.prepTimeMinutes;
+        customWrapper.cookTimeMinutes = r.cookTimeMinutes;
+        customWrapper.difficulty = r.difficulty;
+        customWrapper.ingredients = [...r.ingredients];
+      } else {
+        const l = baseItem as LaundryGuide;
+        customWrapper.garmentType = l.garmentType;
+        customWrapper.fabricCare = [...l.fabricCare];
+        customWrapper.washTemp = l.washTemp;
+        customWrapper.dryMethod = l.dryMethod;
+        customWrapper.ironTemp = l.ironTemp;
+        customWrapper.tips = l.tips ? [...l.tips] : [];
+      }
+
+      await this.db.customCatalogItems.put(customWrapper);
+      await this.refreshCustomItems();
+      this.notifyChange();
+      return;
+    }
+
+    // Fallback básico
+    const customWrapper: CustomCatalogItem = {
+      id: itemId,
+      type: itemId.startsWith('rec') ? 'recipe' : 'laundry',
+      title: itemId,
+      description: '',
+      tags: [],
+      createdAt: new Date().toISOString(),
+      steps: [{ order: 1, instruction: newStepText, durationMinutes: duration }],
+    };
+    await this.db.customCatalogItems.put(customWrapper);
+    await this.refreshCustomItems();
+    this.notifyChange();
+  }
+
+  // ─── Step Progress (Checkmarks en Pasos) ───
   async getStepProgress(catalogItemId: string): Promise<StepProgress[]> {
     if (!this.db) return [];
     return this.db.stepProgress
       .where('catalogItemId')
       .equals(catalogItemId)
       .sortBy('stepOrder');
+  }
+
+  async getAllStepProgress(): Promise<StepProgress[]> {
+    if (!this.db) return [];
+    return this.db.stepProgress.toArray();
   }
 
   async toggleStep(catalogItemId: string, stepOrder: number): Promise<void> {
@@ -174,18 +298,19 @@ export class StorageService {
         completedAt: new Date().toISOString(),
       });
     }
+    this.notifyChange();
   }
 
   async resetSteps(catalogItemId: string): Promise<void> {
     if (!this.db) return;
     await this.db.stepProgress.where('catalogItemId').equals(catalogItemId).delete();
+    this.notifyChange();
   }
 
   // ─── Shopping List (Éxito & D1) ───
   async refreshShoppingList(): Promise<void> {
     if (!this.db) return;
     const items = await this.db.shoppingItems.toArray();
-    // Compatibilidad: si algún ítem viejo no tiene store, asignar D1
     const normalized = items.map((i) => ({
       ...i,
       store: i.store || ('D1' as SupermarketStore),
@@ -197,6 +322,7 @@ export class StorageService {
     if (!this.db) return;
     await this.db.shoppingItems.add(item as ShoppingItem);
     await this.refreshShoppingList();
+    this.notifyChange();
   }
 
   async updateShoppingItem(id: number, updates: Partial<Omit<ShoppingItem, 'id'>>): Promise<void> {
@@ -206,6 +332,7 @@ export class StorageService {
       updatedAt: new Date().toISOString(),
     });
     await this.refreshShoppingList();
+    this.notifyChange();
   }
 
   async toggleShoppingItem(id: number): Promise<void> {
@@ -217,6 +344,7 @@ export class StorageService {
         updatedAt: new Date().toISOString(),
       });
       await this.refreshShoppingList();
+      this.notifyChange();
     }
   }
 
@@ -224,6 +352,7 @@ export class StorageService {
     if (!this.db) return;
     await this.db.shoppingItems.delete(id);
     await this.refreshShoppingList();
+    this.notifyChange();
   }
 
   async clearCheckedItems(): Promise<void> {
@@ -231,14 +360,14 @@ export class StorageService {
     const checked = this.shoppingList().filter((i) => i.checked);
     await this.db.shoppingItems.bulkDelete(checked.map((i) => i.id!));
     await this.refreshShoppingList();
+    this.notifyChange();
   }
 
-  /**
-   * Empuja los ingredientes de una receta hacia la lista de compras.
-   * Por defecto asigna D1 (o la tienda que el usuario elija).
-   */
-  async pushIngredientsToShoppingList(recipe: Recipe, targetStore: SupermarketStore = 'D1'): Promise<number> {
-    if (!this.db) return 0;
+  async pushIngredientsToShoppingList(
+    recipe: Recipe | CustomCatalogItem,
+    targetStore: SupermarketStore = 'D1'
+  ): Promise<number> {
+    if (!this.db || !recipe.ingredients) return 0;
     const existing = await this.db.shoppingItems.toArray();
     const existingNames = new Set(existing.map((i) => i.name.toLowerCase().trim()));
 
@@ -257,22 +386,9 @@ export class StorageService {
     if (newItems.length > 0) {
       await this.db.shoppingItems.bulkAdd(newItems);
       await this.refreshShoppingList();
+      this.notifyChange();
     }
     return newItems.length;
-  }
-
-  /**
-   * Sincronización masiva desde PC o archivo JSON.
-   */
-  async bulkSyncShoppingItems(remoteItems: ShoppingItem[]): Promise<void> {
-    if (!this.db) return;
-    await this.db.shoppingItems.clear();
-    const cleanItems = remoteItems.map(({ id, ...rest }) => ({
-      ...rest,
-      store: rest.store || ('D1' as SupermarketStore),
-    }));
-    await this.db.shoppingItems.bulkAdd(cleanItems as ShoppingItem[]);
-    await this.refreshShoppingList();
   }
 
   // ─── To-Do List ───
@@ -286,6 +402,7 @@ export class StorageService {
     if (!this.db) return;
     await this.db.todoItems.add(item as TodoItem);
     await this.refreshTodoList();
+    this.notifyChange();
   }
 
   async toggleTodo(id: number): Promise<void> {
@@ -297,6 +414,7 @@ export class StorageService {
         completedAt: !item.completed ? new Date().toISOString() : undefined,
       });
       await this.refreshTodoList();
+      this.notifyChange();
     }
   }
 
@@ -304,9 +422,10 @@ export class StorageService {
     if (!this.db) return;
     await this.db.todoItems.delete(id);
     await this.refreshTodoList();
+    this.notifyChange();
   }
 
-  // ─── Daily Check-Ins & Calendar ───
+  // ─── Daily Check-Ins & Calendar con Recurrencia Semanal ───
   async refreshCheckIns(): Promise<void> {
     if (!this.db) return;
     const items = await this.db.dailyCheckIns.orderBy('date').reverse().toArray();
@@ -322,6 +441,7 @@ export class StorageService {
     if (!this.db) return;
     await this.db.dailyCheckIns.put(checkIn as DailyCheckIn);
     await this.refreshCheckIns();
+    this.notifyChange();
   }
 
   async refreshCalendarEvents(): Promise<void> {
@@ -334,6 +454,45 @@ export class StorageService {
     if (!this.db) return;
     await this.db.calendarEvents.add(event as CalendarEvent);
     await this.refreshCalendarEvents();
+    this.notifyChange();
+  }
+
+  /**
+   * Agenda una receta en un día y permite programar su repetición en semanas siguientes
+   */
+  async scheduleRecipeWithRecurrence(params: {
+    recipeId: string;
+    recipeTitle: string;
+    startDate: string;        // YYYY-MM-DD
+    time?: string;
+    repeatWeeks: number;      // 0 = solo ese día, 1 = la próxima semana, 4 = próximas 4 semanas
+  }): Promise<number> {
+    if (!this.db) return 0;
+    const seriesId = `series-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    const [year, month, day] = params.startDate.split('-').map(Number);
+    const eventsToAdd: Omit<CalendarEvent, 'id'>[] = [];
+
+    const totalWeeks = Math.max(1, params.repeatWeeks + 1);
+    for (let w = 0; w < totalWeeks; w++) {
+      const d = new Date(year, month - 1, day + w * 7);
+      const dateStr = d.toISOString().slice(0, 10);
+      eventsToAdd.push({
+        title: params.recipeTitle,
+        date: dateStr,
+        time: params.time || 'Almuerzo',
+        type: 'comida',
+        linkedItemId: params.recipeId,
+        linkedItemTitle: params.recipeTitle,
+        recurrenceSeriesId: params.repeatWeeks > 0 ? seriesId : undefined,
+        completed: false,
+        createdAt: new Date().toISOString(),
+      });
+    }
+
+    await this.db.calendarEvents.bulkAdd(eventsToAdd as CalendarEvent[]);
+    await this.refreshCalendarEvents();
+    this.notifyChange();
+    return eventsToAdd.length;
   }
 
   async toggleCalendarEvent(id: number): Promise<void> {
@@ -342,6 +501,7 @@ export class StorageService {
     if (event) {
       await this.db.calendarEvents.update(id, { completed: !event.completed });
       await this.refreshCalendarEvents();
+      this.notifyChange();
     }
   }
 
@@ -349,11 +509,72 @@ export class StorageService {
     if (!this.db) return;
     await this.db.calendarEvents.delete(id);
     await this.refreshCalendarEvents();
+    this.notifyChange();
   }
 
   async getEventsForDate(date: string): Promise<CalendarEvent[]> {
     if (!this.db) return [];
     return this.db.calendarEvents.where('date').equals(date).toArray();
+  }
+
+  async getEventsForMonth(year: number, month: number): Promise<CalendarEvent[]> {
+    if (!this.db) return [];
+    const prefix = `${year}-${String(month).padStart(2, '0')}`;
+    return this.db.calendarEvents
+      .filter((e) => e.date.startsWith(prefix))
+      .toArray();
+  }
+
+  // ─── Bulk Sync Methods (PULL desde la nube hacia el teléfono) ───
+  async bulkSyncShoppingItems(remoteItems: ShoppingItem[]): Promise<void> {
+    if (!this.db) return;
+    await this.db.shoppingItems.clear();
+    const cleanItems = remoteItems.map(({ id, ...rest }) => ({
+      ...rest,
+      store: rest.store || ('D1' as SupermarketStore),
+    }));
+    if (cleanItems.length > 0) {
+      await this.db.shoppingItems.bulkAdd(cleanItems as ShoppingItem[]);
+    }
+    await this.refreshShoppingList();
+  }
+
+  async bulkSyncCustomItems(remoteItems: CustomCatalogItem[]): Promise<void> {
+    if (!this.db) return;
+    await this.db.customCatalogItems.clear();
+    if (remoteItems.length > 0) {
+      await this.db.customCatalogItems.bulkAdd(remoteItems);
+    }
+    await this.refreshCustomItems();
+  }
+
+  async bulkSyncCalendarEvents(remoteEvents: CalendarEvent[]): Promise<void> {
+    if (!this.db) return;
+    await this.db.calendarEvents.clear();
+    const clean = remoteEvents.map(({ id, ...rest }) => rest as CalendarEvent);
+    if (clean.length > 0) {
+      await this.db.calendarEvents.bulkAdd(clean);
+    }
+    await this.refreshCalendarEvents();
+  }
+
+  async bulkSyncTodos(remoteTodos: TodoItem[]): Promise<void> {
+    if (!this.db) return;
+    await this.db.todoItems.clear();
+    const clean = remoteTodos.map(({ id, ...rest }) => rest as TodoItem);
+    if (clean.length > 0) {
+      await this.db.todoItems.bulkAdd(clean);
+    }
+    await this.refreshTodoList();
+  }
+
+  async bulkSyncStepProgress(remoteProgress: StepProgress[]): Promise<void> {
+    if (!this.db) return;
+    await this.db.stepProgress.clear();
+    const clean = remoteProgress.map(({ id, ...rest }) => rest as StepProgress);
+    if (clean.length > 0) {
+      await this.db.stepProgress.bulkAdd(clean);
+    }
   }
 
   // ─── User Settings ───
@@ -373,17 +594,18 @@ export class StorageService {
     }
   }
 
-  // ─── Backup / Restore (JSON para Archivos de iOS) ───
+  // ─── Backup / Restore (JSON) ───
   async exportDatabase(): Promise<string> {
     if (!this.db) return '{}';
     const data = {
       exportedAt: new Date().toISOString(),
-      version: '1.1.0',
+      version: '1.2.0',
       tables: {
         stepProgress: await this.db.stepProgress.toArray(),
         shoppingItems: await this.db.shoppingItems.toArray(),
         todoItems: await this.db.todoItems.toArray(),
         calendarEvents: await this.db.calendarEvents.toArray(),
+        customCatalogItems: await this.db.customCatalogItems.toArray(),
         userSettings: await this.db.userSettings.toArray(),
       },
     };
@@ -411,6 +633,7 @@ export class StorageService {
         this.db.shoppingItems,
         this.db.todoItems,
         this.db.calendarEvents,
+        this.db.customCatalogItems,
         this.db.userSettings,
       ],
       async () => {
@@ -418,6 +641,7 @@ export class StorageService {
         await this.db!.shoppingItems.clear();
         await this.db!.todoItems.clear();
         await this.db!.calendarEvents.clear();
+        await this.db!.customCatalogItems.clear();
         await this.db!.userSettings.clear();
 
         const stripId = <T extends { id?: number }>(items: T[]): T[] =>
@@ -427,9 +651,11 @@ export class StorageService {
         if (data.tables?.shoppingItems) await this.db!.shoppingItems.bulkAdd(stripId(data.tables.shoppingItems));
         if (data.tables?.todoItems) await this.db!.todoItems.bulkAdd(stripId(data.tables.todoItems));
         if (data.tables?.calendarEvents) await this.db!.calendarEvents.bulkAdd(stripId(data.tables.calendarEvents));
+        if (data.tables?.customCatalogItems) await this.db!.customCatalogItems.bulkAdd(data.tables.customCatalogItems);
         if (data.tables?.userSettings) await this.db!.userSettings.bulkAdd(stripId(data.tables.userSettings));
       }
     );
     await this.initializeData();
+    this.notifyChange();
   }
 }

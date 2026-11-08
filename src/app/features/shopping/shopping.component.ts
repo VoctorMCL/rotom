@@ -39,9 +39,15 @@ import type { ShoppingItem, SupermarketStore } from '../../core/models/state.mod
           <span class="status-label">{{ sync.statusMessage() }}</span>
         </div>
         <button class="btn-mini-sync" [disabled]="sync.syncState() === 'syncing'">
-          {{ sync.syncState() === 'syncing' ? '...' : 'Sincronizar 🔄' }}
+          {{ sync.syncState() === 'syncing' ? 'Bajando cambios...' : 'Bajar cambios del PC ⬇️' }}
         </button>
       </div>
+
+      @if (sync.toastMessage()) {
+        <div class="sync-toast-bar">
+          {{ sync.toastMessage() }}
+        </div>
+      }
 
       <!-- Supermarket Store Filter (D1 vs Éxito vs Todos) -->
       <div class="store-filter-bar">
@@ -415,6 +421,18 @@ import type { ShoppingItem, SupermarketStore } from '../../core/models/state.mod
         font-weight: 700;
         cursor: pointer;
       }
+    }
+
+    .sync-toast-bar {
+      background: rgba(48, 209, 88, 0.15);
+      border: 1px solid rgba(48, 209, 88, 0.35);
+      color: var(--success, #30d158);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.55rem 0.85rem;
+      border-radius: 10px;
+      text-align: center;
+      animation: fadeIn 0.2s ease;
     }
 
     /* ─── Supermarket Store Filter (D1 vs Éxito vs Todos) ─── */
@@ -1013,7 +1031,7 @@ export class ShoppingComponent {
   }
 
   async triggerSync(): Promise<void> {
-    await this.sync.syncNow();
+    await this.sync.pullFromCloud();
   }
 
   getCategoryEmoji(cat: string): string {

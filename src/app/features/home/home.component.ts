@@ -25,7 +25,7 @@ import { SyncService } from '../../core/services/sync.service';
       </section>
 
       <!-- Sync Status & Quick Cloud Sync -->
-      <section class="sync-banner" (click)="sync.syncNow()">
+      <section class="sync-banner" (click)="sync.pullFromCloud()">
         <div class="sync-left">
           <span class="sync-indicator" [class]="sync.syncState()"></span>
           <div class="sync-text">
@@ -34,9 +34,15 @@ import { SyncService } from '../../core/services/sync.service';
           </div>
         </div>
         <button class="btn-sync-action" [disabled]="sync.syncState() === 'syncing'">
-          {{ sync.syncState() === 'syncing' ? 'Sincronizando...' : 'Sincronizar 🔄' }}
+          {{ sync.syncState() === 'syncing' ? 'Bajando...' : 'Bajar cambios del PC ⬇️' }}
         </button>
       </section>
+
+      @if (sync.toastMessage()) {
+        <div class="sync-toast-home">
+          {{ sync.toastMessage() }}
+        </div>
+      }
 
       <!-- Safari Storage Protection Alert / Status -->
       @if (!storage.isStandalone() && !storage.isPersistent()) {
@@ -270,6 +276,17 @@ import { SyncService } from '../../core/services/sync.service';
         cursor: pointer;
         &:active { opacity: 0.7; }
       }
+    }
+
+    .sync-toast-home {
+      background: rgba(48, 209, 88, 0.15);
+      border: 1px solid rgba(48, 209, 88, 0.35);
+      color: var(--success, #30d158);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.55rem 0.85rem;
+      border-radius: 12px;
+      text-align: center;
     }
 
     /* ─── Safari Protection Status ─── */

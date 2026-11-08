@@ -52,7 +52,7 @@ import { SyncService } from '../../core/services/sync.service';
 
         <div class="sync-actions-row">
           <button class="btn-action" (click)="triggerSync()" [disabled]="sync.syncState() === 'syncing'">
-            {{ sync.syncState() === 'syncing' ? 'Sincronizando...' : 'Sincronizar Ahora 🔄' }}
+            {{ sync.syncState() === 'syncing' ? 'Bajando cambios...' : 'Bajar cambios del PC ⬇️' }}
           </button>
         </div>
       </section>
@@ -393,7 +393,7 @@ export class SettingsComponent {
   }
 
   async triggerSync(): Promise<void> {
-    await this.sync.syncNow();
+    await this.sync.pullFromCloud();
   }
 
   async requestPersistence(): Promise<void> {
