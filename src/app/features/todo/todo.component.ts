@@ -11,11 +11,14 @@ import type { TodoItem } from '../../core/models/state.models';
   template: `
     <div class="todo-container">
       <header class="page-header">
-        <div class="header-text">
-          <h2>Tareas Pendientes</h2>
-          <span class="count-badge">
-            {{ storage.pendingTodoCount() }} activa{{ storage.pendingTodoCount() === 1 ? '' : 's' }}
-          </span>
+        <div class="title-with-sprite">
+          <img src="assets/images/rotom/rotom-sprite.webp" alt="Rotom" class="header-sprite" />
+          <div class="header-text">
+            <h2>MISIONES</h2>
+            <span class="count-badge">
+              {{ storage.pendingTodoCount() }} PENDIENTE{{ storage.pendingTodoCount() === 1 ? '' : 'S' }}
+            </span>
+          </div>
         </div>
 
         <div class="filter-pills">
@@ -25,7 +28,7 @@ import type { TodoItem } from '../../core/models/state.models';
             [class.active]="filterMode() === 'pending'"
             (click)="filterMode.set('pending')"
           >
-            Pendientes
+            PENDIENTES
           </button>
           <button
             type="button"
@@ -33,51 +36,55 @@ import type { TodoItem } from '../../core/models/state.models';
             [class.active]="filterMode() === 'all'"
             (click)="filterMode.set('all')"
           >
-            Todas
+            TODAS
           </button>
         </div>
       </header>
 
       <!-- Quick Add Input Bar -->
       <div class="add-card">
-        <input
-          type="text"
-          [(ngModel)]="newTodoTitle"
-          placeholder="¿Qué necesitas hacer hoy?"
-          (keyup.enter)="addTodo()"
-          class="title-input"
-        />
+        <div class="input-line">
+          <span class="prompt-symbol">▶</span>
+          <input
+            type="text"
+            [(ngModel)]="newTodoTitle"
+            placeholder="NUEVA MISIÓN O TAREA..."
+            (keyup.enter)="addTodo()"
+            class="title-input"
+          />
+        </div>
 
         <div class="add-options">
           <div class="priority-selector">
+            <span class="pri-label">PRIORIDAD:</span>
             <button
               type="button"
-              class="pri-btn"
+              class="pri-btn pri-alta"
               [class.active]="newTodoPriority === 'alta'"
               (click)="newTodoPriority = 'alta'"
             >
-              🔴 Alta
+              ALTA
             </button>
             <button
               type="button"
-              class="pri-btn"
+              class="pri-btn pri-media"
               [class.active]="newTodoPriority === 'media'"
               (click)="newTodoPriority = 'media'"
             >
-              🟡 Media
+              MEDIA
             </button>
             <button
               type="button"
-              class="pri-btn"
+              class="pri-btn pri-baja"
               [class.active]="newTodoPriority === 'baja'"
               (click)="newTodoPriority = 'baja'"
             >
-              🟢 Baja
+              BAJA
             </button>
           </div>
 
           <button class="btn-create" (click)="addTodo()">
-            Agregar
+            + AGREGAR
           </button>
         </div>
       </div>
@@ -85,9 +92,9 @@ import type { TodoItem } from '../../core/models/state.models';
       <!-- Todo List -->
       @if (filteredTodos().length === 0) {
         <div class="empty-state">
-          <span class="empty-icon">🎉</span>
-          <h3>¡Todo al día!</h3>
-          <p>No tienes tareas pendientes en esta vista.</p>
+          <img src="assets/images/rotom/rotom-sprite.webp" alt="Rotom" class="empty-rotom-img" />
+          <h3>¡MISIONES COMPLETADAS!</h3>
+          <p>No tienes tareas pendientes en esta vista. ¡Rotom descansando!</p>
         </div>
       } @else {
         <div class="todos-list">
@@ -97,20 +104,18 @@ import type { TodoItem } from '../../core/models/state.models';
               [class.completed]="todo.completed"
               (click)="storage.toggleTodo(todo.id!)"
             >
-              <div class="checkbox-box">
-                @if (todo.completed) {
-                  <span>✓</span>
-                }
+              <div class="checkbox-box" [class.checked]="todo.completed">
+                {{ todo.completed ? '✓' : '' }}
               </div>
 
               <div class="todo-content">
                 <span class="todo-title">{{ todo.title }}</span>
                 <div class="todo-meta">
                   <span class="pri-tag" [class]="todo.priority">
-                    {{ todo.priority | titlecase }}
+                    {{ todo.priority | uppercase }}
                   </span>
                   @if (todo.category) {
-                    <span class="cat-tag">{{ todo.category }}</span>
+                    <span class="cat-tag">#{{ todo.category }}</span>
                   }
                 </div>
               </div>
@@ -133,195 +138,323 @@ import type { TodoItem } from '../../core/models/state.models';
     .todo-container {
       display: flex;
       flex-direction: column;
-      gap: 1.25rem;
+      gap: 1rem;
     }
 
     .page-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
 
-      h2 { font-size: 1.7rem; font-weight: 800; margin: 0; }
-      .count-badge { font-size: 0.8rem; color: var(--accent, #ff3b30); font-weight: 600; }
+      .title-with-sprite {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+
+        .header-sprite {
+          width: 32px;
+          height: 32px;
+          image-rendering: pixelated;
+        }
+
+        h2 {
+          font-family: var(--font-pixel, monospace);
+          font-size: 0.95rem;
+          color: var(--accent, #00ff66);
+          margin: 0;
+          letter-spacing: 0.05em;
+        }
+
+        .count-badge {
+          font-family: var(--font-pixel, monospace);
+          font-size: 0.55rem;
+          color: var(--text-secondary, #74ad74);
+          display: block;
+          margin-top: 0.15rem;
+        }
+      }
     }
 
     .filter-pills {
       display: flex;
-      background: var(--bg-tertiary, #2c2c2e);
-      padding: 3px;
-      border-radius: 20px;
+      background: #020502;
+      border: 2px solid var(--border, #184218);
+      box-shadow: 2px 2px 0px #000;
+      padding: 2px;
 
       .pill-btn {
-        padding: 0.35rem 0.75rem;
+        padding: 0.35rem 0.65rem;
         border: none;
         background: transparent;
-        color: var(--text-secondary, #8e8e93);
-        font-size: 0.75rem;
-        font-weight: 600;
-        border-radius: 16px;
+        color: var(--text-secondary, #74ad74);
+        font-family: var(--font-pixel, monospace);
+        font-size: 0.55rem;
         cursor: pointer;
+        transition: all 0.1s ease;
 
         &.active {
-          background: var(--bg-secondary, #1c1c1e);
-          color: var(--text-primary, #fff);
+          background: var(--accent, #00ff66);
+          color: #000;
+          box-shadow: inset 1px 1px 0px rgba(255, 255, 255, 0.4);
         }
       }
     }
 
     .add-card {
-      background: var(--bg-secondary, #1c1c1e);
-      border: 1px solid var(--border, #38383a);
-      border-radius: var(--card-radius, 16px);
-      padding: 0.85rem 1rem;
+      background: #081408;
+      border: 2px solid var(--border-bright, #00ff66);
+      box-shadow: 3px 3px 0px #000;
+      padding: 0.75rem 0.85rem;
       display: flex;
       flex-direction: column;
-      gap: 0.75rem;
+      gap: 0.6rem;
 
-      .title-input {
-        background: transparent;
-        border: none;
-        color: var(--text-primary, #fff);
-        font-size: 0.95rem;
-        padding: 0.25rem 0;
-        &:focus { outline: none; }
+      .input-line {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: #030603;
+        border: 2px solid var(--border, #184218);
+        padding: 0.4rem 0.6rem;
+
+        .prompt-symbol {
+          color: var(--accent, #00ff66);
+          font-family: var(--font-pixel, monospace);
+          font-size: 0.75rem;
+        }
+
+        .title-input {
+          flex: 1;
+          background: transparent;
+          border: none;
+          color: #fff;
+          font-family: var(--font-terminal, monospace);
+          font-size: 1.15rem;
+          padding: 0.1rem 0;
+          &:focus { outline: none; }
+          &::placeholder {
+            color: #436b43;
+          }
+        }
       }
 
       .add-options {
         display: flex;
         justify-content: space-between;
         align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
       }
 
       .priority-selector {
         display: flex;
+        align-items: center;
         gap: 0.35rem;
 
+        .pri-label {
+          font-family: var(--font-pixel, monospace);
+          font-size: 0.5rem;
+          color: var(--text-secondary, #74ad74);
+          margin-right: 0.2rem;
+        }
+
         .pri-btn {
-          background: var(--bg-tertiary, #2c2c2e);
-          border: 1px solid var(--border, #38383a);
-          color: var(--text-secondary, #8e8e93);
-          font-size: 0.7rem;
+          background: #040904;
+          border: 1px solid var(--border, #184218);
+          color: var(--text-secondary, #74ad74);
+          font-family: var(--font-pixel, monospace);
+          font-size: 0.55rem;
           padding: 0.25rem 0.5rem;
-          border-radius: 8px;
           cursor: pointer;
 
-          &.active {
-            border-color: var(--accent, #ff3b30);
-            color: var(--text-primary, #fff);
-            background: rgba(255, 59, 48, 0.15);
+          &.pri-alta.active {
+            border-color: #ff3b30;
+            color: #ff3b30;
+            background: rgba(255, 59, 48, 0.2);
+          }
+
+          &.pri-media.active {
+            border-color: #ffd60a;
+            color: #ffd60a;
+            background: rgba(255, 214, 10, 0.2);
+          }
+
+          &.pri-baja.active {
+            border-color: var(--accent, #00ff66);
+            color: var(--accent, #00ff66);
+            background: rgba(0, 255, 102, 0.2);
           }
         }
       }
 
       .btn-create {
-        background: var(--accent, #ff3b30);
-        color: #fff;
-        border: none;
-        padding: 0.35rem 0.85rem;
-        border-radius: 8px;
-        font-size: 0.8rem;
+        background: var(--accent, #00ff66);
+        color: #000;
+        border: 2px solid #000;
+        box-shadow: 2px 2px 0px #000;
+        padding: 0.35rem 0.75rem;
+        font-family: var(--font-pixel, monospace);
+        font-size: 0.6rem;
         font-weight: 700;
         cursor: pointer;
+
+        &:active {
+          transform: translate(1px, 1px);
+          box-shadow: 1px 1px 0px #000;
+        }
       }
     }
 
     .empty-state {
       text-align: center;
-      padding: 3rem 1rem;
-      background: var(--bg-secondary, #1c1c1e);
-      border-radius: var(--card-radius, 16px);
-      border: 1px dashed var(--border, #38383a);
+      padding: 2.5rem 1rem;
+      background: #081408;
+      border: 2px dashed var(--border, #184218);
+      box-shadow: 2px 2px 0px #000;
 
-      .empty-icon { font-size: 3rem; display: block; margin-bottom: 0.75rem; }
-      h3 { font-size: 1.15rem; margin: 0 0 0.5rem; }
-      p { font-size: 0.85rem; color: var(--text-secondary, #8e8e93); margin: 0; }
+      .empty-rotom-img {
+        width: 48px;
+        height: 48px;
+        image-rendering: pixelated;
+        margin-bottom: 0.75rem;
+        filter: drop-shadow(0 0 6px rgba(0, 255, 102, 0.4));
+      }
+
+      h3 {
+        font-family: var(--font-pixel, monospace);
+        font-size: 0.8rem;
+        color: var(--accent, #00ff66);
+        margin: 0 0 0.5rem;
+      }
+
+      p {
+        font-family: var(--font-terminal, monospace);
+        font-size: 1.15rem;
+        color: var(--text-secondary, #74ad74);
+        margin: 0;
+      }
     }
 
     .todos-list {
       display: flex;
       flex-direction: column;
-      gap: 0.6rem;
+      gap: 0.5rem;
     }
 
     .todo-row {
       display: flex;
       align-items: center;
-      gap: 0.85rem;
-      min-height: 52px;
-      padding: 0.75rem 0.85rem;
-      background: var(--bg-secondary, #1c1c1e);
-      border: 1px solid var(--border, #38383a);
-      border-radius: var(--input-radius, 12px);
+      gap: 0.75rem;
+      min-height: 48px;
+      padding: 0.65rem 0.75rem;
+      background: #081408;
+      border: 2px solid var(--border, #184218);
+      box-shadow: 2px 2px 0px #000;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
       user-select: none;
-      transition: all 0.15s ease;
+      transition: all 0.1s ease;
+
+      &:hover {
+        border-color: var(--accent, #00ff66);
+      }
 
       &:active {
-        background: var(--bg-tertiary, #2c2c2e);
+        transform: translate(1px, 1px);
+        box-shadow: 1px 1px 0px #000;
       }
 
       &.completed {
-        opacity: 0.45;
-        background: transparent;
+        opacity: 0.5;
+        background: #030603;
+        border-color: #0f290f;
 
         .checkbox-box {
-          background: var(--success, #30d158);
-          border-color: var(--success, #30d158);
+          background: var(--accent, #00ff66);
+          border-color: var(--accent, #00ff66);
           color: #000;
         }
 
         .todo-title {
           text-decoration: line-through;
+          color: var(--text-secondary, #74ad74);
         }
       }
 
       .checkbox-box {
-        width: 24px;
-        height: 24px;
-        border-radius: 6px;
-        border: 2px solid var(--border, #555);
+        width: 22px;
+        height: 22px;
+        border: 2px solid var(--accent, #00ff66);
+        background: #020502;
+        color: var(--accent, #00ff66);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.85rem;
-        font-weight: 800;
+        font-family: var(--font-pixel, monospace);
+        font-size: 0.75rem;
         flex-shrink: 0;
+        box-shadow: 1px 1px 0px #000;
+
+        &.checked {
+          background: var(--accent, #00ff66);
+          color: #000;
+        }
       }
 
       .todo-content {
         flex: 1;
         display: flex;
         flex-direction: column;
-        gap: 0.25rem;
+        gap: 0.2rem;
 
-        .todo-title { font-size: 0.95rem; font-weight: 500; }
-        .todo-meta { display: flex; gap: 0.4rem; }
+        .todo-title {
+          font-family: var(--font-terminal, monospace);
+          font-size: 1.25rem;
+          font-weight: 500;
+          color: #fff;
+          line-height: 1.2;
+        }
+
+        .todo-meta {
+          display: flex;
+          align-items: center;
+          gap: 0.4rem;
+        }
 
         .pri-tag {
-          font-size: 0.65rem;
+          font-family: var(--font-pixel, monospace);
+          font-size: 0.5rem;
           font-weight: 700;
           padding: 0.1rem 0.35rem;
-          border-radius: 4px;
+          border: 1px solid currentColor;
 
-          &.alta { background: rgba(255, 59, 48, 0.2); color: #ff3b30; }
-          &.media { background: rgba(255, 214, 10, 0.2); color: #ffd60a; }
-          &.baja { background: rgba(48, 209, 88, 0.2); color: #30d158; }
+          &.alta { background: rgba(255, 59, 48, 0.15); color: #ff3b30; }
+          &.media { background: rgba(255, 214, 10, 0.15); color: #ffd60a; }
+          &.baja { background: rgba(0, 255, 102, 0.15); color: var(--accent, #00ff66); }
         }
 
         .cat-tag {
-          font-size: 0.65rem;
-          color: var(--text-secondary, #8e8e93);
+          font-family: var(--font-pixel, monospace);
+          font-size: 0.5rem;
+          color: var(--text-secondary, #74ad74);
         }
       }
 
       .btn-delete {
         background: none;
-        border: none;
-        color: var(--text-tertiary, #636366);
-        font-size: 0.9rem;
-        padding: 0.5rem;
+        border: 1px solid transparent;
+        color: var(--text-secondary, #74ad74);
+        font-family: var(--font-pixel, monospace);
+        font-size: 0.75rem;
+        padding: 0.35rem;
         cursor: pointer;
+
+        &:hover {
+          color: #ff3b30;
+          border-color: #ff3b30;
+        }
       }
     }
   `],

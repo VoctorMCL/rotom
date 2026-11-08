@@ -662,7 +662,7 @@ import type { CustomCatalogItem, SupermarketStore } from '../../core/models/stat
     .wiki-container {
       display: flex;
       flex-direction: column;
-      gap: 1.25rem;
+      gap: 1rem;
     }
 
     .wiki-header {
@@ -674,42 +674,44 @@ import type { CustomCatalogItem, SupermarketStore } from '../../core/models/stat
         .title-left {
           display: flex;
           align-items: center;
-          gap: 0.75rem;
+          gap: 0.5rem;
 
-          h2 { font-size: 1.7rem; font-weight: 800; margin: 0; }
+          h2 { font-size: 0.95rem; margin: 0; }
           .rotom-modes-preview {
             display: flex;
-            gap: 0.25rem;
-            .mode-sprite {
-              width: 26px;
-              height: 26px;
-              image-rendering: pixelated;
-            }
+            gap: 0.2rem;
+            .mode-sprite { width: 24px; height: 24px; image-rendering: pixelated; }
           }
         }
 
         .btn-open-create {
-          background: var(--accent, #ff3b30);
-          color: #fff;
-          border: none;
-          font-size: 0.8rem;
-          font-weight: 700;
-          padding: 0.45rem 0.85rem;
-          border-radius: 20px;
+          background: #0f2b0f;
+          border: 2px solid var(--border-bright, #00ff66);
+          box-shadow: 2px 2px 0px #000;
+          color: var(--accent, #00ff66);
+          font-family: var(--font-pixel, monospace);
+          font-size: 0.55rem;
+          padding: 0.4rem 0.65rem;
           cursor: pointer;
-          &:active { opacity: 0.8; transform: scale(0.97); }
+          &:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0px #000; }
         }
       }
 
-      .subtitle { color: var(--text-secondary, #8e8e93); font-size: 0.85rem; margin: 0.25rem 0 1rem; }
+      .subtitle {
+        font-family: var(--font-terminal, monospace);
+        color: var(--text-secondary, #74ad74);
+        font-size: 1.1rem;
+        margin: 0.2rem 0 0.75rem;
+      }
     }
 
     .segmented-control {
       display: flex;
-      background: var(--bg-tertiary, #2c2c2e);
+      background: #050d05;
+      border: 2px solid var(--border, #184218);
+      gap: 3px;
       padding: 3px;
-      border-radius: var(--input-radius, 12px);
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.65rem;
 
       button {
         flex: 1;
@@ -718,25 +720,20 @@ import type { CustomCatalogItem, SupermarketStore } from '../../core/models/stat
         justify-content: center;
         gap: 0.35rem;
         padding: 0.5rem 0.25rem;
-        border: none;
+        border: 1px solid transparent;
         background: transparent;
-        color: var(--text-secondary, #8e8e93);
-        font-size: 0.8rem;
-        font-weight: 600;
-        border-radius: 9px;
+        color: var(--text-secondary, #74ad74);
+        font-family: var(--font-pixel, monospace);
+        font-size: 0.55rem;
         cursor: pointer;
-        transition: all 0.2s ease;
 
-        .tab-sprite {
-          width: 18px;
-          height: 18px;
-          image-rendering: pixelated;
-        }
+        .tab-sprite { width: 16px; height: 16px; image-rendering: pixelated; }
 
         &.active {
-          background: var(--bg-secondary, #1c1c1e);
-          color: var(--text-primary, #fff);
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+          background: #0d220d;
+          border-color: var(--border-bright, #00ff66);
+          color: #fff;
+          box-shadow: 2px 2px 0px #000;
         }
       }
     }
@@ -745,25 +742,27 @@ import type { CustomCatalogItem, SupermarketStore } from '../../core/models/stat
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      background: var(--bg-secondary, #1c1c1e);
-      border: 1px solid var(--border, #38383a);
-      border-radius: var(--input-radius, 12px);
-      padding: 0.6rem 0.85rem;
+      background: #081408;
+      border: 2px solid var(--border-bright, #00ff66);
+      box-shadow: 2px 2px 0px #000;
+      padding: 0.45rem 0.75rem;
 
-      .search-icon { font-size: 0.9rem; opacity: 0.6; }
+      .search-icon { font-size: 1.1rem; }
       input {
         flex: 1;
         background: transparent;
         border: none;
-        color: var(--text-primary, #fff);
-        font-size: 0.9rem;
+        color: var(--text-primary, #e6ffe6);
+        font-family: var(--font-terminal, monospace);
+        font-size: 1.25rem;
         &:focus { outline: none; }
       }
       .btn-clear-q {
         background: none;
         border: none;
-        color: var(--text-secondary, #8e8e93);
-        font-size: 0.85rem;
+        color: var(--text-secondary, #74ad74);
+        font-family: var(--font-pixel, monospace);
+        font-size: 0.75rem;
         cursor: pointer;
       }
     }
@@ -771,64 +770,56 @@ import type { CustomCatalogItem, SupermarketStore } from '../../core/models/stat
     .catalog-grid {
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      gap: 0.85rem;
     }
 
     .catalog-card {
-      background: var(--bg-secondary, #1c1c1e);
-      border: 1px solid var(--border, #38383a);
-      border-radius: var(--card-radius, 16px);
-      overflow: hidden;
+      background: #081408;
+      border: 2px solid var(--border-bright, #00ff66);
+      box-shadow: 3px 3px 0px #000;
       cursor: pointer;
-      transition: transform 0.15s ease;
+      transition: transform 0.1s ease;
 
-      &:active { transform: scale(0.98); }
+      &:active { transform: translate(1px, 1px); box-shadow: 2px 2px 0px #000; }
 
       .card-cover {
         position: relative;
-        height: 160px;
-        background: #2c2c2e;
+        height: 140px;
+        background: #040804;
+        border-bottom: 2px solid var(--border, #184218);
 
-        img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
+        img { width: 100%; height: 100%; object-fit: cover; }
 
         .rotom-card-badge {
           position: absolute;
-          top: 10px;
-          right: 10px;
+          top: 8px;
+          right: 8px;
           display: flex;
           align-items: center;
           gap: 0.35rem;
-          padding: 0.3rem 0.6rem;
-          border-radius: 20px;
-          font-size: 0.75rem;
-          font-weight: 700;
-          backdrop-filter: blur(8px);
-          -webkit-backdrop-filter: blur(8px);
+          padding: 0.25rem 0.5rem;
+          font-family: var(--font-pixel, monospace);
+          font-size: 0.55rem;
+          box-shadow: 2px 2px 0px #000;
 
-          .badge-icon {
-            width: 18px;
-            height: 18px;
-            image-rendering: pixelated;
-          }
+          .badge-icon { width: 16px; height: 16px; image-rendering: pixelated; }
 
           &.heat {
-            background: rgba(255, 107, 53, 0.85);
-            color: #fff;
+            background: #ff6b35;
+            color: #000;
+            border: 1px solid #000;
           }
 
           &.wash {
-            background: rgba(10, 132, 255, 0.85);
-            color: #fff;
+            background: #00d4ff;
+            color: #000;
+            border: 1px solid #000;
           }
         }
       }
 
       .card-body {
-        padding: 0.85rem 1rem;
+        padding: 0.75rem 0.85rem;
 
         .card-body-top {
           display: flex;
@@ -836,22 +827,23 @@ import type { CustomCatalogItem, SupermarketStore } from '../../core/models/stat
           align-items: center;
           margin-bottom: 0.25rem;
 
-          h3 { font-size: 1.1rem; font-weight: 700; margin: 0; }
+          h3 { font-size: 0.75rem; margin: 0; color: #fff; }
           .custom-badge-pill {
-            font-size: 0.65rem;
-            color: #ffd60a;
-            background: rgba(255, 214, 10, 0.15);
-            padding: 0.15rem 0.4rem;
-            border-radius: 6px;
-            font-weight: 700;
+            font-family: var(--font-pixel, monospace);
+            font-size: 0.45rem;
+            color: #000;
+            background: #ffd60a;
+            padding: 1px 4px;
+            border: 1px solid #000;
           }
         }
 
         .desc {
-          color: var(--text-secondary, #8e8e93);
-          font-size: 0.8rem;
-          margin: 0 0 0.75rem;
-          line-height: 1.35;
+          font-family: var(--font-terminal, monospace);
+          color: var(--text-secondary, #74ad74);
+          font-size: 1.15rem;
+          margin: 0 0 0.5rem;
+          line-height: 1.25;
         }
 
         .card-footer {
@@ -865,18 +857,19 @@ import type { CustomCatalogItem, SupermarketStore } from '../../core/models/stat
             flex-wrap: wrap;
 
             .tag {
-              font-size: 0.7rem;
-              color: var(--accent, #ff3b30);
-              background: rgba(255, 59, 48, 0.1);
-              padding: 0.15rem 0.4rem;
-              border-radius: 4px;
+              font-family: var(--font-pixel, monospace);
+              font-size: 0.5rem;
+              color: var(--accent, #00ff66);
+              background: #051405;
+              border: 1px solid var(--border, #184218);
+              padding: 1px 4px;
             }
           }
 
           .meta-time {
-            font-size: 0.75rem;
-            color: var(--text-secondary, #8e8e93);
-            font-weight: 600;
+            font-family: var(--font-pixel, monospace);
+            font-size: 0.55rem;
+            color: #ffd60a;
           }
         }
       }
@@ -886,7 +879,7 @@ import type { CustomCatalogItem, SupermarketStore } from '../../core/models/stat
     .detail-view {
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      gap: 0.85rem;
 
       .detail-top-nav {
         display: flex;
@@ -894,116 +887,115 @@ import type { CustomCatalogItem, SupermarketStore } from '../../core/models/stat
         align-items: center;
 
         .btn-back {
-          background: var(--bg-secondary, #1c1c1e);
-          border: 1px solid var(--border, #38383a);
-          color: var(--text-primary, #fff);
-          padding: 0.4rem 0.75rem;
-          border-radius: 12px;
-          font-size: 0.8rem;
+          background: #081408;
+          border: 2px solid var(--border-bright, #00ff66);
+          box-shadow: 2px 2px 0px #000;
+          color: var(--accent, #00ff66);
+          font-family: var(--font-pixel, monospace);
+          padding: 0.35rem 0.65rem;
+          font-size: 0.55rem;
           cursor: pointer;
         }
 
         .btn-delete-custom {
-          background: rgba(255, 59, 48, 0.15);
-          border: 1px solid rgba(255, 59, 48, 0.3);
-          color: var(--accent, #ff3b30);
-          padding: 0.4rem 0.75rem;
-          border-radius: 12px;
-          font-size: 0.75rem;
-          font-weight: 700;
+          background: #2b0806;
+          border: 2px solid #ff3b30;
+          box-shadow: 2px 2px 0px #000;
+          color: #ff3b30;
+          font-family: var(--font-pixel, monospace);
+          padding: 0.35rem 0.65rem;
+          font-size: 0.55rem;
           cursor: pointer;
         }
       }
     }
 
     .detail-card {
-      background: var(--bg-secondary, #1c1c1e);
-      border: 1px solid var(--border, #38383a);
-      border-radius: var(--card-radius, 16px);
-      overflow: hidden;
+      background: #081408;
+      border: 3px solid var(--border-bright, #00ff66);
+      box-shadow: 3px 3px 0px #000;
     }
 
     .rotom-companion-banner {
       display: flex;
       align-items: center;
-      gap: 1rem;
-      padding: 0.85rem 1rem;
-      border-bottom: 1px solid var(--border, #38383a);
+      gap: 0.75rem;
+      padding: 0.65rem 0.85rem;
 
       &.heat-mode {
-        background: linear-gradient(135deg, rgba(255, 107, 53, 0.18), rgba(28, 28, 30, 0.95));
+        background: #170a04;
+        border-bottom: 2px solid #ff6b35;
         .companion-tag { color: #ff6b35; }
       }
 
       &.wash-mode {
-        background: linear-gradient(135deg, rgba(10, 132, 255, 0.18), rgba(28, 28, 30, 0.95));
-        .companion-tag { color: #0a84ff; }
+        background: #04111a;
+        border-bottom: 2px solid #00d4ff;
+        .companion-tag { color: #00d4ff; }
       }
 
       .companion-avatar-wrap {
-        width: 54px;
-        height: 54px;
+        width: 48px;
+        height: 48px;
         flex-shrink: 0;
 
         .rotom-companion-img {
           width: 100%;
           height: 100%;
           object-fit: contain;
-          animation: rotomFloat 3s ease-in-out infinite alternate;
-
-          &.heat-glow { filter: drop-shadow(0 0 8px rgba(255, 107, 53, 0.6)); }
-          &.wash-glow { filter: drop-shadow(0 0 8px rgba(10, 132, 255, 0.6)); }
+          image-rendering: pixelated;
         }
       }
 
       .companion-info {
         flex: 1;
-        .companion-tag { font-size: 0.65rem; font-weight: 800; letter-spacing: 0.5px; }
-        h4 { font-size: 0.95rem; font-weight: 800; margin: 0.15rem 0 0.1rem; }
-        p { font-size: 0.75rem; color: var(--text-secondary, #8e8e93); margin: 0; line-height: 1.25; }
+        .companion-tag { font-family: var(--font-pixel, monospace); font-size: 0.55rem; }
+        h4 { font-family: var(--font-pixel, monospace); font-size: 0.75rem; margin: 0.15rem 0; color: #fff; }
+        p { font-family: var(--font-terminal, monospace); font-size: 1.15rem; color: var(--text-secondary, #74ad74); margin: 0; line-height: 1.2; }
       }
     }
 
     .detail-header-img {
       position: relative;
-      height: 200px;
+      height: 170px;
+      border-bottom: 2px solid var(--border, #184218);
       img { width: 100%; height: 100%; object-fit: cover; }
       .img-overlay {
         position: absolute;
         bottom: 0;
         left: 0;
         right: 0;
-        padding: 1.25rem 1rem 0.75rem;
-        background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+        padding: 1rem 0.85rem 0.5rem;
+        background: linear-gradient(to top, rgba(0,0,0,0.95), transparent);
         .badge-type {
-          font-size: 0.7rem;
+          font-family: var(--font-pixel, monospace);
+          font-size: 0.55rem;
           color: #ffd60a;
-          text-transform: uppercase;
-          font-weight: 700;
         }
-        h2 { font-size: 1.4rem; font-weight: 800; margin: 0.2rem 0 0; color: #fff; }
+        h2 { font-size: 0.95rem; margin: 0.2rem 0 0; color: #fff; }
       }
     }
 
     .detail-content {
-      padding: 1rem;
+      padding: 0.85rem;
       display: flex;
       flex-direction: column;
-      gap: 1.25rem;
+      gap: 1rem;
 
       .detail-desc {
-        color: var(--text-secondary, #8e8e93);
-        font-size: 0.9rem;
-        line-height: 1.4;
+        font-family: var(--font-terminal, monospace);
+        color: var(--text-secondary, #74ad74);
+        font-size: 1.25rem;
+        line-height: 1.3;
         margin: 0;
       }
     }
 
     .stats-row {
       display: flex;
-      background: var(--bg-tertiary, #2c2c2e);
-      border-radius: var(--input-radius, 12px);
-      padding: 0.65rem 0.5rem;
+      background: #040804;
+      border: 2px solid var(--border, #184218);
+      padding: 0.45rem;
       justify-content: space-around;
 
       .stat {
@@ -1012,76 +1004,78 @@ import type { CustomCatalogItem, SupermarketStore } from '../../core/models/stat
         align-items: center;
         gap: 0.15rem;
 
-        .stat-label { font-size: 0.65rem; color: var(--text-secondary, #8e8e93); text-transform: uppercase; }
-        .stat-val { font-size: 0.85rem; font-weight: 700; }
+        .stat-label { font-family: var(--font-pixel, monospace); font-size: 0.45rem; color: var(--text-secondary, #74ad74); }
+        .stat-val { font-family: var(--font-pixel, monospace); font-size: 0.7rem; color: var(--accent, #00ff66); }
       }
     }
 
     .action-box {
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
-      background: rgba(255, 59, 48, 0.08);
-      border: 1px solid rgba(255, 59, 48, 0.25);
-      border-radius: var(--input-radius, 12px);
-      padding: 0.75rem;
+      gap: 0.45rem;
+      background: #081408;
+      border: 2px solid var(--border-bright, #00ff66);
+      box-shadow: 2px 2px 0px #000;
+      padding: 0.65rem;
 
       .push-store-picker {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
-        .label-push-store { font-size: 0.75rem; color: var(--text-secondary, #8e8e93); }
+        gap: 0.45rem;
+        .label-push-store { font-family: var(--font-pixel, monospace); font-size: 0.55rem; color: var(--text-secondary, #74ad74); }
         .btn-store-pick {
-          background: var(--bg-secondary, #1c1c1e);
-          border: 1px solid var(--border, #38383a);
-          color: var(--text-secondary, #8e8e93);
-          font-size: 0.75rem;
-          padding: 0.2rem 0.5rem;
-          border-radius: 6px;
+          background: #040804;
+          border: 1px solid var(--border, #184218);
+          color: var(--text-secondary, #74ad74);
+          font-family: var(--font-pixel, monospace);
+          font-size: 0.55rem;
+          padding: 0.2rem 0.45rem;
           cursor: pointer;
-          &.active { border-color: #fff; color: #fff; font-weight: 700; }
+          &.active { border-color: var(--accent, #00ff66); color: #fff; background: #0f2b0f; }
         }
       }
 
       .btn-push-shopping {
-        background: var(--accent, #ff3b30);
-        color: #fff;
-        border: none;
-        padding: 0.65rem;
-        border-radius: 8px;
-        font-weight: 700;
-        font-size: 0.85rem;
+        background: #0f2b0f;
+        border: 2px solid var(--border-bright, #00ff66);
+        box-shadow: 2px 2px 0px #000;
+        color: var(--accent, #00ff66);
+        font-family: var(--font-pixel, monospace);
+        padding: 0.55rem;
+        font-size: 0.65rem;
         cursor: pointer;
       }
 
       .push-alert {
-        font-size: 0.75rem;
-        color: var(--success, #30d158);
+        font-family: var(--font-terminal, monospace);
+        font-size: 1.15rem;
+        color: var(--accent, #00ff66);
         margin: 0;
         text-align: center;
       }
     }
 
     .ingredients-section {
-      h3 { font-size: 1rem; margin-bottom: 0.5rem; }
+      h3 { font-size: 0.75rem; margin-bottom: 0.45rem; }
       .ingredients-list {
         list-style: none;
         padding: 0;
         margin: 0;
         display: flex;
         flex-direction: column;
-        gap: 0.35rem;
+        gap: 0.3rem;
 
         .ingredient-item {
           display: flex;
           justify-content: space-between;
-          padding: 0.4rem 0.5rem;
-          background: var(--bg-tertiary, #2c2c2e);
-          border-radius: 8px;
-          font-size: 0.85rem;
+          padding: 0.35rem 0.55rem;
+          background: #040804;
+          border: 1px solid var(--border, #184218);
+          font-family: var(--font-terminal, monospace);
+          font-size: 1.25rem;
 
-          .ing-qty { color: var(--accent, #ff3b30); font-weight: 600; }
-          .ing-optional { color: var(--text-secondary, #8e8e93); font-size: 0.75rem; margin-left: 0.35rem; }
+          .ing-qty { font-family: var(--font-pixel, monospace); font-size: 0.6rem; color: #ffd60a; }
+          .ing-optional { color: var(--text-secondary, #74ad74); font-size: 1rem; margin-left: 0.35rem; }
         }
       }
     }
@@ -1091,21 +1085,22 @@ import type { CustomCatalogItem, SupermarketStore } from '../../core/models/stat
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 0.65rem;
+        margin-bottom: 0.55rem;
 
         .steps-title-with-mascot {
           display: flex;
           align-items: center;
           gap: 0.4rem;
-          .step-mascot-sprite { width: 22px; height: 22px; image-rendering: pixelated; }
-          h3 { font-size: 1rem; margin: 0; }
+          .step-mascot-sprite { width: 20px; height: 20px; image-rendering: pixelated; }
+          h3 { font-size: 0.75rem; margin: 0; }
         }
 
         .btn-reset-steps {
           background: none;
           border: none;
-          color: var(--text-secondary, #8e8e93);
-          font-size: 0.75rem;
+          color: var(--text-secondary, #74ad74);
+          font-family: var(--font-pixel, monospace);
+          font-size: 0.55rem;
           cursor: pointer;
         }
       }
@@ -1113,113 +1108,113 @@ import type { CustomCatalogItem, SupermarketStore } from '../../core/models/stat
       .steps-list {
         display: flex;
         flex-direction: column;
-        gap: 0.5rem;
+        gap: 0.45rem;
       }
 
       .step-item {
         display: flex;
         align-items: flex-start;
         gap: 0.65rem;
-        padding: 0.65rem;
-        background: var(--bg-tertiary, #2c2c2e);
-        border-radius: var(--input-radius, 12px);
+        padding: 0.55rem;
+        background: #040804;
+        border: 2px solid var(--border, #184218);
+        box-shadow: 2px 2px 0px #000;
         cursor: pointer;
 
         &.completed {
-          opacity: 0.5;
-          .step-checkbox { background: var(--success, #30d158); color: #000; border-color: var(--success, #30d158); }
+          opacity: 0.45;
+          .step-checkbox { background: var(--accent, #00ff66); color: #000; border-color: var(--accent, #00ff66); }
           .step-text p { text-decoration: line-through; }
         }
 
         .step-checkbox {
-          width: 24px;
-          height: 24px;
-          border-radius: 50%;
-          border: 1.5px solid var(--border, #555);
+          width: 22px;
+          height: 22px;
+          border: 2px solid var(--border-bright, #00ff66);
+          background: #040804;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 0.75rem;
-          font-weight: 700;
+          font-family: var(--font-pixel, monospace);
+          font-size: 0.65rem;
           flex-shrink: 0;
           margin-top: 2px;
         }
 
         .step-text {
           flex: 1;
-          p { font-size: 0.85rem; margin: 0 0 0.25rem; line-height: 1.35; }
-          .step-timer { font-size: 0.7rem; color: #ffd60a; font-weight: 600; }
-          .step-img { margin-top: 0.35rem; width: 100%; border-radius: 6px; max-height: 140px; object-fit: cover; }
+          p { font-family: var(--font-terminal, monospace); font-size: 1.25rem; margin: 0 0 0.2rem; line-height: 1.25; }
+          .step-timer { font-family: var(--font-pixel, monospace); font-size: 0.55rem; color: #ffd60a; }
+          .step-img { margin-top: 0.35rem; width: 100%; border: 1px solid var(--border, #184218); max-height: 140px; object-fit: cover; }
         }
       }
     }
 
     /* ─── Add Step Card ─── */
     .add-step-card {
-      margin-top: 0.75rem;
+      margin-top: 0.65rem;
 
       .btn-trigger-add-step {
         width: 100%;
-        background: var(--bg-tertiary, #2c2c2e);
-        border: 1px dashed var(--border, #555);
-        color: var(--text-primary, #fff);
-        padding: 0.65rem;
-        border-radius: 10px;
-        font-size: 0.8rem;
-        font-weight: 600;
+        background: #081408;
+        border: 2px dashed var(--border-bright, #00ff66);
+        color: var(--accent, #00ff66);
+        font-family: var(--font-pixel, monospace);
+        padding: 0.55rem;
+        font-size: 0.55rem;
         cursor: pointer;
       }
 
       .add-step-inline-form {
-        background: var(--bg-tertiary, #2c2c2e);
-        border: 1px solid var(--border, #555);
-        border-radius: 12px;
-        padding: 0.75rem;
+        background: #081408;
+        border: 2px solid var(--border-bright, #00ff66);
+        box-shadow: 2px 2px 0px #000;
+        padding: 0.65rem;
         display: flex;
         flex-direction: column;
-        gap: 0.5rem;
+        gap: 0.45rem;
 
-        h4 { font-size: 0.85rem; margin: 0; }
+        h4 { font-size: 0.65rem; margin: 0; }
         .step-textarea {
-          background: var(--bg-secondary, #1c1c1e);
-          border: 1px solid var(--border, #38383a);
-          border-radius: 8px;
+          background: #040804;
+          border: 2px solid var(--border, #184218);
           color: #fff;
-          padding: 0.5rem;
-          font-size: 0.85rem;
+          font-family: var(--font-terminal, monospace);
+          font-size: 1.2rem;
+          padding: 0.45rem;
           resize: none;
         }
 
         .step-form-row {
           display: flex;
-          gap: 0.5rem;
+          gap: 0.4rem;
 
           .step-time-input {
             width: 110px;
-            background: var(--bg-secondary, #1c1c1e);
-            border: 1px solid var(--border, #38383a);
-            border-radius: 8px;
+            background: #040804;
+            border: 2px solid var(--border, #184218);
             color: #fff;
-            padding: 0.4rem 0.5rem;
-            font-size: 0.8rem;
+            padding: 0.35rem;
+            font-family: var(--font-terminal, monospace);
+            font-size: 1.15rem;
           }
 
           .btn-save-step {
             flex: 1;
-            background: var(--accent, #ff3b30);
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 0.8rem;
+            background: #0f2b0f;
+            border: 2px solid var(--border-bright, #00ff66);
+            color: var(--accent, #00ff66);
+            font-family: var(--font-pixel, monospace);
+            font-size: 0.55rem;
             cursor: pointer;
           }
 
           .btn-cancel-step {
             background: none;
             border: none;
-            color: var(--text-secondary, #8e8e93);
-            font-size: 0.8rem;
+            color: var(--text-secondary, #74ad74);
+            font-family: var(--font-pixel, monospace);
+            font-size: 0.55rem;
             cursor: pointer;
           }
         }
@@ -1227,30 +1222,29 @@ import type { CustomCatalogItem, SupermarketStore } from '../../core/models/stat
     }
 
     .care-symbols-box {
-      h4 { font-size: 0.95rem; margin-bottom: 0.5rem; }
+      h4 { font-size: 0.75rem; margin-bottom: 0.45rem; }
       .symbols-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 0.5rem;
+        gap: 0.45rem;
       }
       .symbol-card {
-        padding: 0.5rem;
-        background: var(--bg-tertiary, #2c2c2e);
-        border-radius: 8px;
-        .symbol-img { width: 28px; height: 28px; margin-bottom: 0.25rem; }
-        strong { display: block; font-size: 0.75rem; }
-        p { font-size: 0.65rem; color: var(--text-secondary, #8e8e93); margin: 0.1rem 0 0; }
+        padding: 0.45rem;
+        background: #040804;
+        border: 1px solid var(--border, #184218);
+        .symbol-img { width: 26px; height: 26px; margin-bottom: 0.2rem; }
+        strong { display: block; font-family: var(--font-pixel, monospace); font-size: 0.55rem; color: #fff; }
+        p { font-family: var(--font-terminal, monospace); font-size: 1.05rem; color: var(--text-secondary, #74ad74); margin: 0.1rem 0 0; }
       }
     }
 
     .tips-section {
-      background: rgba(10, 132, 255, 0.1);
-      border: 1px solid rgba(10, 132, 255, 0.25);
-      border-radius: var(--input-radius, 12px);
-      padding: 0.75rem;
+      background: #04121a;
+      border: 2px solid #00d4ff;
+      padding: 0.65rem;
 
-      h4 { font-size: 0.85rem; color: #0a84ff; margin: 0 0 0.4rem; }
-      ul { padding-left: 1.15rem; font-size: 0.75rem; color: var(--text-secondary, #8e8e93); margin: 0; }
+      h4 { font-size: 0.65rem; color: #00d4ff; margin: 0 0 0.35rem; }
+      ul { padding-left: 1.15rem; font-family: var(--font-terminal, monospace); font-size: 1.2rem; color: var(--text-secondary, #74ad74); margin: 0; }
       li { margin-bottom: 0.2rem; }
     }
 
@@ -1258,20 +1252,18 @@ import type { CustomCatalogItem, SupermarketStore } from '../../core/models/stat
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.8);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+      background: rgba(0, 0, 0, 0.85);
       z-index: 1000;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 1rem;
+      padding: 0.85rem;
     }
 
     .modal-card {
-      background: var(--bg-secondary, #1c1c1e);
-      border: 1px solid var(--border, #38383a);
-      border-radius: 20px;
+      background: #081408;
+      border: 3px solid var(--border-bright, #00ff66);
+      box-shadow: 4px 4px 0px #000;
       width: 100%;
       max-width: 520px;
       max-height: 90dvh;
@@ -1283,78 +1275,80 @@ import type { CustomCatalogItem, SupermarketStore } from '../../core/models/stat
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 1rem 1.25rem;
-        border-bottom: 1px solid var(--border, #38383a);
+        padding: 0.75rem 1rem;
+        border-bottom: 2px solid var(--border-bright, #00ff66);
 
         .modal-header-title {
           display: flex;
           align-items: center;
-          gap: 0.5rem;
-          .modal-sprite { width: 28px; height: 28px; image-rendering: pixelated; }
-          h3 { font-size: 1.15rem; font-weight: 800; margin: 0; }
+          gap: 0.45rem;
+          .modal-sprite { width: 24px; height: 24px; image-rendering: pixelated; }
+          h3 { font-size: 0.8rem; margin: 0; color: #fff; }
         }
 
         .btn-close-modal {
           background: none;
           border: none;
-          color: var(--text-secondary, #8e8e93);
-          font-size: 1.1rem;
+          color: var(--text-secondary, #74ad74);
+          font-family: var(--font-pixel, monospace);
+          font-size: 0.85rem;
           cursor: pointer;
         }
       }
 
       .create-type-selector {
         display: flex;
-        padding: 0.5rem 1.25rem;
-        gap: 0.5rem;
-        background: var(--bg-tertiary, #2c2c2e);
+        padding: 0.4rem 0.85rem;
+        gap: 0.4rem;
+        background: #040804;
+        border-bottom: 1px solid var(--border, #184218);
 
         .type-btn {
           flex: 1;
-          padding: 0.5rem;
-          border: none;
-          background: transparent;
-          color: var(--text-secondary, #8e8e93);
-          font-size: 0.75rem;
-          font-weight: 700;
-          border-radius: 8px;
+          padding: 0.45rem;
+          border: 1px solid var(--border, #184218);
+          background: #081408;
+          color: var(--text-secondary, #74ad74);
+          font-family: var(--font-pixel, monospace);
+          font-size: 0.5rem;
           cursor: pointer;
 
           &.active {
-            background: var(--bg-secondary, #1c1c1e);
+            background: #0f2b0f;
+            border-color: var(--border-bright, #00ff66);
             color: #fff;
+            box-shadow: 2px 2px 0px #000;
           }
         }
       }
 
       .modal-body-scroll {
-        padding: 1rem 1.25rem;
+        padding: 0.85rem 1rem;
         overflow-y: auto;
         display: flex;
         flex-direction: column;
-        gap: 0.65rem;
+        gap: 0.55rem;
 
         label {
-          font-size: 0.75rem;
-          color: var(--text-secondary, #8e8e93);
-          font-weight: 600;
-          margin-top: 0.25rem;
+          font-family: var(--font-pixel, monospace);
+          font-size: 0.55rem;
+          color: var(--text-secondary, #74ad74);
         }
 
         .modal-input, .modal-textarea, .modal-select {
-          background: var(--bg-tertiary, #2c2c2e);
-          border: 1px solid var(--border, #38383a);
-          border-radius: 8px;
+          background: #040804;
+          border: 2px solid var(--border, #184218);
           color: #fff;
-          padding: 0.55rem 0.75rem;
-          font-size: 0.85rem;
-          &:focus { outline: none; border-color: var(--accent, #ff3b30); }
+          font-family: var(--font-terminal, monospace);
+          font-size: 1.25rem;
+          padding: 0.45rem;
+          &:focus { outline: none; border-color: var(--accent, #00ff66); }
         }
 
         .grid-2-col {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 0.5rem;
+          gap: 0.4rem;
         }
 
         .flex-1 { flex: 1; }
@@ -1364,31 +1358,31 @@ import type { CustomCatalogItem, SupermarketStore } from '../../core/models/stat
 
       .ing-add-row, .step-add-row {
         display: flex;
-        gap: 0.4rem;
-        margin-bottom: 0.4rem;
+        gap: 0.35rem;
+        margin-bottom: 0.35rem;
       }
 
       .btn-sub-add {
-        background: var(--accent, #ff3b30);
-        color: #fff;
-        border: none;
-        border-radius: 8px;
-        font-weight: 700;
-        font-size: 0.75rem;
-        padding: 0 0.75rem;
+        background: #0f2b0f;
+        border: 2px solid var(--border-bright, #00ff66);
+        color: var(--accent, #00ff66);
+        font-family: var(--font-pixel, monospace);
+        font-size: 0.55rem;
+        padding: 0 0.65rem;
         cursor: pointer;
       }
 
       .ing-draft-chips {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.35rem;
+        gap: 0.3rem;
 
         .draft-chip {
-          background: rgba(255, 255, 255, 0.1);
-          padding: 0.2rem 0.5rem;
-          border-radius: 6px;
-          font-size: 0.75rem;
+          background: #040804;
+          border: 1px solid var(--border, #184218);
+          padding: 0.15rem 0.45rem;
+          font-family: var(--font-terminal, monospace);
+          font-size: 1.1rem;
           display: flex;
           align-items: center;
           gap: 0.3rem;
@@ -1396,7 +1390,7 @@ import type { CustomCatalogItem, SupermarketStore } from '../../core/models/stat
           button {
             background: none;
             border: none;
-            color: var(--text-secondary, #8e8e93);
+            color: #ff3b30;
             font-size: 0.8rem;
             cursor: pointer;
           }
@@ -1406,64 +1400,59 @@ import type { CustomCatalogItem, SupermarketStore } from '../../core/models/stat
       .draft-steps-list {
         display: flex;
         flex-direction: column;
-        gap: 0.35rem;
+        gap: 0.3rem;
 
         .draft-step-item {
           display: flex;
           align-items: center;
-          gap: 0.4rem;
-          background: var(--bg-tertiary, #2c2c2e);
-          padding: 0.4rem 0.6rem;
-          border-radius: 6px;
-          font-size: 0.8rem;
+          gap: 0.35rem;
+          background: #040804;
+          border: 1px solid var(--border, #184218);
+          padding: 0.35rem 0.55rem;
+          font-family: var(--font-terminal, monospace);
+          font-size: 1.15rem;
 
-          .step-num { font-weight: 700; color: var(--accent, #ff3b30); }
+          .step-num { font-family: var(--font-pixel, monospace); font-size: 0.55rem; color: var(--accent, #00ff66); }
           .step-text { flex: 1; }
-          .step-mins { font-size: 0.7rem; color: #ffd60a; }
+          .step-mins { font-family: var(--font-pixel, monospace); font-size: 0.5rem; color: #ffd60a; }
           .btn-del-step {
             background: none;
             border: none;
-            color: var(--text-secondary, #8e8e93);
-            font-size: 0.75rem;
+            color: #ff3b30;
+            font-family: var(--font-pixel, monospace);
+            font-size: 0.65rem;
             cursor: pointer;
           }
         }
       }
 
       .modal-footer {
-        padding: 0.75rem 1.25rem;
-        border-top: 1px solid var(--border, #38383a);
+        padding: 0.65rem 1rem;
+        border-top: 2px solid var(--border, #184218);
         display: flex;
         justify-content: flex-end;
         gap: 0.5rem;
 
         .btn-cancel {
-          background: var(--bg-tertiary, #2c2c2e);
-          border: 1px solid var(--border, #38383a);
-          color: var(--text-secondary, #8e8e93);
-          padding: 0.55rem 1rem;
-          border-radius: 8px;
-          font-size: 0.85rem;
+          background: #040804;
+          border: 2px solid var(--border, #184218);
+          color: var(--text-secondary, #74ad74);
+          font-family: var(--font-pixel, monospace);
+          padding: 0.45rem 0.75rem;
+          font-size: 0.55rem;
           cursor: pointer;
         }
 
         .btn-save-item {
-          background: var(--accent, #ff3b30);
-          color: #fff;
-          border: none;
-          padding: 0.55rem 1.25rem;
-          border-radius: 8px;
-          font-weight: 700;
-          font-size: 0.85rem;
+          background: #0f2b0f;
+          border: 2px solid var(--border-bright, #00ff66);
+          color: var(--accent, #00ff66);
+          font-family: var(--font-pixel, monospace);
+          padding: 0.45rem 1rem;
+          font-size: 0.6rem;
           cursor: pointer;
         }
       }
-    }
-
-    @keyframes rotomFloat {
-      0% { transform: translateY(0px) rotate(0deg); }
-      50% { transform: translateY(-3px) rotate(1deg); }
-      100% { transform: translateY(-6px) rotate(-1deg); }
     }
   `],
 })

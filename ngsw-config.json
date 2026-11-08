@@ -29,6 +29,8 @@
           "/assets/**/*.png",
           "/assets/**/*.svg",
           "/assets/**/*.json",
+          "/assets/**/*.ttf",
+          "/assets/**/*.woff2",
           "/assets/**/*.avif",
           "/icons/**/*.png"
         ]

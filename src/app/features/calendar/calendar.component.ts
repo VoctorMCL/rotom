@@ -310,7 +310,7 @@ interface CalendarDay {
     .calendar-container {
       display: flex;
       flex-direction: column;
-      gap: 1.15rem;
+      gap: 1rem;
     }
 
     .page-header {
@@ -325,39 +325,44 @@ interface CalendarDay {
           gap: 0.5rem;
 
           .header-sprite {
-            width: 30px;
-            height: 30px;
+            width: 28px;
+            height: 28px;
             image-rendering: pixelated;
           }
 
-          h2 { font-size: 1.6rem; font-weight: 800; margin: 0; }
+          h2 { font-size: 0.95rem; margin: 0; }
         }
 
         .btn-schedule-recipe {
-          background: var(--accent, #ff3b30);
-          color: #fff;
-          border: none;
-          font-size: 0.75rem;
-          font-weight: 700;
-          padding: 0.45rem 0.8rem;
-          border-radius: 20px;
+          background: #0f2b0f;
+          border: 2px solid var(--border-bright, #00ff66);
+          box-shadow: 2px 2px 0px #000;
+          color: var(--accent, #00ff66);
+          font-family: var(--font-pixel, monospace);
+          font-size: 0.55rem;
+          padding: 0.4rem 0.65rem;
           cursor: pointer;
-          &:active { opacity: 0.8; }
+          &:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0px #000; }
         }
       }
 
-      .subtitle { color: var(--text-secondary, #8e8e93); font-size: 0.85rem; margin-top: 0.25rem; }
+      .subtitle {
+        font-family: var(--font-terminal, monospace);
+        color: var(--text-secondary, #74ad74);
+        font-size: 1.1rem;
+        margin-top: 0.2rem;
+      }
     }
 
     /* ─── Full Month Calendar Card ─── */
     .month-card {
-      background: var(--bg-secondary, #1c1c1e);
-      border: 1px solid var(--border, #38383a);
-      border-radius: var(--card-radius, 16px);
-      padding: 0.85rem;
+      background: #081408;
+      border: 2px solid var(--border-bright, #00ff66);
+      box-shadow: 3px 3px 0px #000;
+      padding: 0.75rem;
       display: flex;
       flex-direction: column;
-      gap: 0.65rem;
+      gap: 0.55rem;
 
       .month-controls {
         display: flex;
@@ -365,18 +370,19 @@ interface CalendarDay {
         align-items: center;
 
         .btn-nav-month {
-          background: var(--bg-tertiary, #2c2c2e);
-          border: 1px solid var(--border, #38383a);
-          color: var(--text-primary, #fff);
-          width: 34px;
-          height: 34px;
-          border-radius: 50%;
-          font-size: 1.2rem;
+          background: #040804;
+          border: 2px solid var(--border-bright, #00ff66);
+          box-shadow: 2px 2px 0px #000;
+          color: var(--accent, #00ff66);
+          width: 32px;
+          height: 32px;
+          font-family: var(--font-pixel, monospace);
+          font-size: 0.85rem;
           display: flex;
           align-items: center;
           justify-content: center;
           cursor: pointer;
-          &:active { opacity: 0.7; }
+          &:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0px #000; }
         }
 
         .current-month-display {
@@ -385,20 +391,19 @@ interface CalendarDay {
           gap: 0.5rem;
 
           h3 {
-            font-size: 1.1rem;
-            font-weight: 800;
+            font-size: 0.85rem;
             margin: 0;
-            text-transform: capitalize;
+            text-transform: uppercase;
+            color: #fff;
           }
 
           .btn-today-pill {
-            background: var(--bg-tertiary, #2c2c2e);
-            border: 1px solid var(--border, #38383a);
-            color: var(--accent, #ff3b30);
-            font-size: 0.7rem;
-            font-weight: 700;
-            padding: 0.15rem 0.45rem;
-            border-radius: 6px;
+            background: #0f2b0f;
+            border: 1px solid var(--border-bright, #00ff66);
+            color: var(--accent, #00ff66);
+            font-family: var(--font-pixel, monospace);
+            font-size: 0.5rem;
+            padding: 0.15rem 0.4rem;
             cursor: pointer;
           }
         }
@@ -408,69 +413,69 @@ interface CalendarDay {
         display: grid;
         grid-template-columns: repeat(7, 1fr);
         text-align: center;
-        font-size: 0.7rem;
-        font-weight: 700;
-        color: var(--text-secondary, #8e8e93);
+        font-family: var(--font-pixel, monospace);
+        font-size: 0.55rem;
+        color: var(--text-secondary, #74ad74);
         padding-bottom: 0.25rem;
-        border-bottom: 1px solid var(--border, #38383a);
+        border-bottom: 1px solid var(--border, #184218);
       }
 
       .month-grid {
         display: grid;
         grid-template-columns: repeat(7, 1fr);
-        gap: 3px;
+        gap: 2px;
 
         .calendar-day-cell {
           aspect-ratio: 1 / 1.1;
-          background: transparent;
-          border: 1px solid transparent;
-          border-radius: 10px;
-          color: var(--text-primary, #fff);
+          background: #040804;
+          border: 1px solid var(--border, #184218);
+          color: var(--text-primary, #e6ffe6);
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: flex-start;
-          padding: 3px 1px;
+          padding: 2px 1px;
           cursor: pointer;
           position: relative;
           -webkit-tap-highlight-color: transparent;
 
           .day-number {
-            font-size: 0.8rem;
-            font-weight: 700;
-            width: 22px;
-            height: 22px;
+            font-family: var(--font-pixel, monospace);
+            font-size: 0.6rem;
+            width: 20px;
+            height: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 50%;
           }
 
           &.not-current-month {
-            opacity: 0.25;
+            opacity: 0.2;
           }
 
           &.is-today {
+            border-color: #ffd60a;
             .day-number {
-              background: rgba(255, 59, 48, 0.25);
-              color: var(--accent, #ff3b30);
+              color: #ffd60a;
+              font-weight: 700;
             }
           }
 
           &.is-selected {
-            background: var(--bg-tertiary, #2c2c2e);
-            border-color: var(--accent, #ff3b30);
+            background: #0d260d;
+            border-color: var(--accent, #00ff66);
+            box-shadow: 2px 2px 0px #000;
 
             .day-number {
-              background: var(--accent, #ff3b30);
-              color: #fff;
+              background: var(--accent, #00ff66);
+              color: #000;
             }
           }
 
           .day-indicators {
             display: flex;
             gap: 1px;
-            margin-top: 2px;
+            margin-top: 1px;
             align-items: center;
             justify-content: center;
 
@@ -480,8 +485,9 @@ interface CalendarDay {
             }
 
             .more-dot {
-              font-size: 0.55rem;
-              color: var(--text-secondary, #8e8e93);
+              font-family: var(--font-pixel, monospace);
+              font-size: 0.45rem;
+              color: var(--accent, #00ff66);
             }
           }
         }
@@ -490,13 +496,13 @@ interface CalendarDay {
 
     /* ─── Selected Day Section ─── */
     .selected-day-section {
-      background: var(--bg-secondary, #1c1c1e);
-      border: 1px solid var(--border, #38383a);
-      border-radius: var(--card-radius, 16px);
-      padding: 1rem;
+      background: #081408;
+      border: 2px solid var(--border-bright, #00ff66);
+      box-shadow: 3px 3px 0px #000;
+      padding: 0.85rem;
       display: flex;
       flex-direction: column;
-      gap: 0.85rem;
+      gap: 0.75rem;
 
       .day-header {
         display: flex;
@@ -504,21 +510,21 @@ interface CalendarDay {
         align-items: center;
 
         .day-header-text {
-          h3 { font-size: 1.1rem; margin: 0; text-transform: capitalize; }
+          h3 { font-size: 0.8rem; margin: 0; text-transform: uppercase; color: #fff; }
           .day-events-count {
-            font-size: 0.75rem;
-            color: var(--text-secondary, #8e8e93);
+            font-family: var(--font-terminal, monospace);
+            font-size: 1.1rem;
+            color: var(--text-secondary, #74ad74);
           }
         }
 
         .btn-quick-recipe-link {
-          background: rgba(255, 107, 53, 0.18);
-          border: 1px solid rgba(255, 107, 53, 0.4);
+          background: #331505;
+          border: 1px solid #ff6b35;
           color: #ff6b35;
-          padding: 0.35rem 0.65rem;
-          border-radius: 8px;
-          font-size: 0.75rem;
-          font-weight: 700;
+          font-family: var(--font-pixel, monospace);
+          padding: 0.35rem 0.6rem;
+          font-size: 0.55rem;
           cursor: pointer;
         }
       }
@@ -529,33 +535,32 @@ interface CalendarDay {
 
         .input-quick-title {
           flex: 2;
-          background: var(--bg-tertiary, #2c2c2e);
-          border: 1px solid var(--border, #38383a);
-          border-radius: 8px;
+          background: #040804;
+          border: 2px solid var(--border, #184218);
           color: #fff;
-          padding: 0.45rem 0.65rem;
-          font-size: 0.85rem;
-          &:focus { outline: none; border-color: var(--accent, #ff3b30); }
+          font-family: var(--font-terminal, monospace);
+          font-size: 1.25rem;
+          padding: 0.35rem 0.55rem;
+          &:focus { outline: none; border-color: var(--accent, #00ff66); }
         }
 
         .select-quick-type {
-          width: 90px;
-          background: var(--bg-tertiary, #2c2c2e);
-          border: 1px solid var(--border, #38383a);
-          border-radius: 8px;
+          width: 95px;
+          background: #040804;
+          border: 2px solid var(--border, #184218);
           color: #fff;
-          font-size: 0.75rem;
-          padding: 0.35rem;
+          font-family: var(--font-terminal, monospace);
+          font-size: 1.1rem;
+          padding: 0.25rem;
         }
 
         .btn-add-quick {
           width: 36px;
-          background: var(--accent, #ff3b30);
-          color: #fff;
-          border: none;
-          border-radius: 8px;
-          font-weight: 800;
-          font-size: 1.1rem;
+          background: #0f2b0f;
+          border: 2px solid var(--border-bright, #00ff66);
+          color: var(--accent, #00ff66);
+          font-family: var(--font-pixel, monospace);
+          font-size: 0.85rem;
           cursor: pointer;
         }
       }
@@ -563,24 +568,23 @@ interface CalendarDay {
       .day-events-list {
         display: flex;
         flex-direction: column;
-        gap: 0.5rem;
+        gap: 0.45rem;
 
         .no-events-card {
           text-align: center;
-          padding: 1.5rem 1rem;
-          background: var(--bg-tertiary, #2c2c2e);
-          border-radius: 12px;
+          padding: 1.25rem 1rem;
+          background: #040804;
+          border: 1px solid var(--border, #184218);
 
-          .no-events-emoji { font-size: 1.5rem; }
-          p { font-size: 0.85rem; color: var(--text-secondary, #8e8e93); margin: 0.5rem 0 0.75rem; }
+          .no-events-emoji { font-size: 1.4rem; }
+          p { font-family: var(--font-terminal, monospace); font-size: 1.15rem; color: var(--text-secondary, #74ad74); margin: 0.35rem 0 0.5rem; }
           .btn-link-first-recipe {
-            background: var(--accent, #ff3b30);
-            color: #fff;
-            border: none;
-            padding: 0.45rem 0.85rem;
-            border-radius: 8px;
-            font-size: 0.8rem;
-            font-weight: 700;
+            background: #0f2b0f;
+            border: 2px solid var(--border-bright, #00ff66);
+            color: var(--accent, #00ff66);
+            padding: 0.4rem 0.75rem;
+            font-family: var(--font-pixel, monospace);
+            font-size: 0.55rem;
             cursor: pointer;
           }
         }
@@ -589,59 +593,63 @@ interface CalendarDay {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          background: var(--bg-tertiary, #2c2c2e);
-          border: 1px solid var(--border, #38383a);
-          border-radius: 12px;
-          padding: 0.65rem 0.75rem;
+          background: #040804;
+          border: 2px solid var(--border, #184218);
+          box-shadow: 2px 2px 0px #000;
+          padding: 0.55rem 0.65rem;
           gap: 0.5rem;
 
           &.completed {
-            opacity: 0.5;
+            opacity: 0.45;
             .event-title { text-decoration: line-through; }
           }
 
           &.is-recipe {
-            border-color: rgba(255, 107, 53, 0.4);
-            background: linear-gradient(90deg, rgba(255, 107, 53, 0.08), var(--bg-tertiary, #2c2c2e));
+            border-color: #ff6b35;
+            background: #120803;
           }
 
           .event-main {
             display: flex;
             align-items: center;
-            gap: 0.65rem;
+            gap: 0.55rem;
             flex: 1;
             cursor: pointer;
 
             .event-check {
-              width: 26px;
-              height: 26px;
-              border-radius: 50%;
-              border: 1.5px solid var(--border, #555);
+              width: 22px;
+              height: 22px;
+              border: 2px solid var(--border-bright, #00ff66);
               display: flex;
               align-items: center;
               justify-content: center;
-              font-size: 0.8rem;
+              font-family: var(--font-pixel, monospace);
+              font-size: 0.6rem;
               flex-shrink: 0;
             }
 
             .event-details {
               display: flex;
               flex-direction: column;
-              gap: 0.15rem;
+              gap: 0.1rem;
 
               .event-title-row {
                 display: flex;
                 align-items: center;
-                gap: 0.4rem;
+                gap: 0.35rem;
 
-                .event-title { font-size: 0.9rem; font-weight: 600; }
+                .event-title {
+                  font-family: var(--font-terminal, monospace);
+                  font-size: 1.25rem;
+                  color: #fff;
+                }
+
                 .pill-recurrence {
-                  font-size: 0.65rem;
-                  color: #ffd60a;
-                  background: rgba(255, 214, 10, 0.15);
-                  padding: 0.1rem 0.35rem;
-                  border-radius: 4px;
-                  font-weight: 700;
+                  font-family: var(--font-pixel, monospace);
+                  font-size: 0.45rem;
+                  color: #000;
+                  background: #ffd60a;
+                  padding: 1px 3px;
                 }
               }
 
@@ -650,9 +658,10 @@ interface CalendarDay {
                 gap: 0.35rem;
 
                 .meta-tag {
-                  font-size: 0.65rem;
-                  color: var(--text-secondary, #8e8e93);
-                  &.type-tag { text-transform: uppercase; font-weight: 700; }
+                  font-family: var(--font-pixel, monospace);
+                  font-size: 0.45rem;
+                  color: var(--text-secondary, #74ad74);
+                  &.type-tag { color: var(--accent, #00ff66); text-transform: uppercase; }
                 }
               }
             }
@@ -661,35 +670,35 @@ interface CalendarDay {
           .event-actions {
             display: flex;
             align-items: center;
-            gap: 0.35rem;
+            gap: 0.3rem;
 
             .btn-event-action {
-              background: var(--bg-secondary, #1c1c1e);
-              border: 1px solid var(--border, #38383a);
-              color: var(--text-primary, #fff);
-              font-size: 0.7rem;
-              padding: 0.3rem 0.5rem;
-              border-radius: 6px;
+              background: #081408;
+              border: 1px solid var(--border, #184218);
+              color: var(--text-primary, #e6ffe6);
+              font-family: var(--font-pixel, monospace);
+              font-size: 0.5rem;
+              padding: 0.3rem 0.45rem;
               cursor: pointer;
-              font-weight: 600;
 
               &.btn-wiki-link {
                 color: #ff6b35;
-                border-color: rgba(255, 107, 53, 0.3);
+                border-color: #ff6b35;
               }
 
               &.btn-cart-push {
-                color: var(--success, #30d158);
-                border-color: rgba(48, 209, 88, 0.3);
+                color: var(--accent, #00ff66);
+                border-color: var(--accent, #00ff66);
               }
             }
 
             .btn-delete-event {
               background: none;
               border: none;
-              color: var(--text-secondary, #8e8e93);
-              font-size: 0.85rem;
-              padding: 0.3rem;
+              color: #ff3b30;
+              font-family: var(--font-pixel, monospace);
+              font-size: 0.75rem;
+              padding: 0.2rem;
               cursor: pointer;
             }
           }
@@ -701,143 +710,141 @@ interface CalendarDay {
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.8);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      background: rgba(0, 0, 0, 0.85);
       z-index: 1000;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 1rem;
+      padding: 0.85rem;
     }
 
     .modal-card {
-      background: var(--bg-secondary, #1c1c1e);
-      border: 1px solid var(--border, #38383a);
-      border-radius: 20px;
+      background: #081408;
+      border: 3px solid var(--border-bright, #00ff66);
+      box-shadow: 4px 4px 0px #000;
       width: 100%;
       max-width: 480px;
       overflow: hidden;
-      animation: popIn 0.2s cubic-bezier(0.1, 0.9, 0.2, 1);
 
       .modal-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 1rem 1.25rem;
-        border-bottom: 1px solid var(--border, #38383a);
+        padding: 0.75rem 1rem;
+        border-bottom: 2px solid var(--border-bright, #00ff66);
 
         .modal-title-with-sprite {
           display: flex;
           align-items: center;
-          gap: 0.5rem;
-          .modal-sprite { width: 28px; height: 28px; image-rendering: pixelated; }
-          h3 { font-size: 1.15rem; font-weight: 800; margin: 0; }
+          gap: 0.45rem;
+          .modal-sprite { width: 24px; height: 24px; image-rendering: pixelated; }
+          h3 { font-size: 0.8rem; margin: 0; color: #fff; }
         }
 
         .btn-close-modal {
           background: none;
           border: none;
-          color: var(--text-secondary, #8e8e93);
-          font-size: 1.1rem;
+          color: var(--text-secondary, #74ad74);
+          font-family: var(--font-pixel, monospace);
+          font-size: 0.85rem;
           cursor: pointer;
         }
       }
 
       .modal-body {
-        padding: 1rem 1.25rem;
+        padding: 0.85rem 1rem;
         display: flex;
         flex-direction: column;
-        gap: 0.75rem;
+        gap: 0.65rem;
 
         .modal-desc {
-          font-size: 0.85rem;
-          color: var(--text-secondary, #8e8e93);
+          font-family: var(--font-terminal, monospace);
+          font-size: 1.15rem;
+          color: var(--text-secondary, #74ad74);
           margin: 0;
           strong { color: #fff; }
         }
 
         label {
-          font-size: 0.75rem;
-          color: var(--text-secondary, #8e8e93);
-          font-weight: 600;
+          font-family: var(--font-pixel, monospace);
+          font-size: 0.55rem;
+          color: var(--text-secondary, #74ad74);
         }
 
         .recipe-select {
-          background: var(--bg-tertiary, #2c2c2e);
-          border: 1px solid var(--border, #38383a);
-          border-radius: 8px;
+          background: #040804;
+          border: 2px solid var(--border, #184218);
           color: #fff;
-          padding: 0.6rem;
-          font-size: 0.85rem;
-          &:focus { outline: none; border-color: var(--accent, #ff3b30); }
+          font-family: var(--font-terminal, monospace);
+          font-size: 1.25rem;
+          padding: 0.45rem;
+          &:focus { outline: none; border-color: var(--accent, #00ff66); }
         }
 
         .meal-time-selector {
           display: flex;
-          gap: 0.4rem;
+          gap: 0.35rem;
 
           .btn-time-pick {
             flex: 1;
-            background: var(--bg-tertiary, #2c2c2e);
-            border: 1px solid var(--border, #38383a);
-            color: var(--text-secondary, #8e8e93);
-            padding: 0.45rem 0.2rem;
-            border-radius: 8px;
-            font-size: 0.75rem;
-            font-weight: 600;
+            background: #040804;
+            border: 1px solid var(--border, #184218);
+            color: var(--text-secondary, #74ad74);
+            padding: 0.4rem 0.2rem;
+            font-family: var(--font-pixel, monospace);
+            font-size: 0.55rem;
             cursor: pointer;
 
             &.selected {
-              background: var(--accent, #ff3b30);
+              background: #0f2b0f;
               color: #fff;
-              border-color: var(--accent, #ff3b30);
+              border-color: var(--border-bright, #00ff66);
+              box-shadow: 2px 2px 0px #000;
             }
           }
         }
 
         .recurrence-box {
-          background: var(--bg-tertiary, #2c2c2e);
-          border: 1px solid rgba(255, 214, 10, 0.25);
-          border-radius: 12px;
-          padding: 0.75rem;
+          background: #040804;
+          border: 2px solid #ffd60a;
+          box-shadow: 2px 2px 0px #000;
+          padding: 0.65rem;
           display: flex;
           flex-direction: column;
-          gap: 0.4rem;
+          gap: 0.35rem;
 
           .recurrence-title {
             color: #ffd60a;
-            font-size: 0.85rem;
-            font-weight: 700;
+            font-family: var(--font-pixel, monospace);
+            font-size: 0.65rem;
           }
 
           .recurrence-hint {
-            font-size: 0.7rem;
-            color: var(--text-secondary, #8e8e93);
-            margin: 0 0 0.25rem;
-            line-height: 1.3;
+            font-family: var(--font-terminal, monospace);
+            font-size: 1.05rem;
+            color: var(--text-secondary, #74ad74);
+            margin: 0 0 0.2rem;
           }
 
           .recurrence-options {
             display: flex;
             flex-direction: column;
-            gap: 0.35rem;
+            gap: 0.3rem;
 
             .btn-rec-opt {
               text-align: left;
-              background: var(--bg-secondary, #1c1c1e);
-              border: 1px solid var(--border, #38383a);
-              color: var(--text-secondary, #8e8e93);
-              padding: 0.45rem 0.65rem;
-              border-radius: 8px;
-              font-size: 0.75rem;
+              background: #081408;
+              border: 1px solid var(--border, #184218);
+              color: var(--text-secondary, #74ad74);
+              padding: 0.4rem 0.55rem;
+              font-family: var(--font-terminal, monospace);
+              font-size: 1.15rem;
               cursor: pointer;
 
               &.active {
                 border-color: #ffd60a;
                 color: #ffd60a;
-                background: rgba(255, 214, 10, 0.1);
-                font-weight: 700;
+                background: #1c1800;
               }
             }
           }
@@ -845,32 +852,31 @@ interface CalendarDay {
       }
 
       .modal-footer {
-        padding: 0.75rem 1.25rem;
-        border-top: 1px solid var(--border, #38383a);
+        padding: 0.65rem 1rem;
+        border-top: 2px solid var(--border, #184218);
         display: flex;
         justify-content: flex-end;
         gap: 0.5rem;
 
         .btn-cancel {
-          background: var(--bg-tertiary, #2c2c2e);
-          border: 1px solid var(--border, #38383a);
-          color: var(--text-secondary, #8e8e93);
-          padding: 0.5rem 0.85rem;
-          border-radius: 8px;
-          font-size: 0.8rem;
+          background: #040804;
+          border: 2px solid var(--border, #184218);
+          color: var(--text-secondary, #74ad74);
+          font-family: var(--font-pixel, monospace);
+          padding: 0.45rem 0.75rem;
+          font-size: 0.55rem;
           cursor: pointer;
         }
 
         .btn-confirm-schedule {
-          background: var(--accent, #ff3b30);
-          color: #fff;
-          border: none;
-          padding: 0.5rem 1.2rem;
-          border-radius: 8px;
-          font-weight: 700;
-          font-size: 0.85rem;
+          background: #0f2b0f;
+          border: 2px solid var(--border-bright, #00ff66);
+          color: var(--accent, #00ff66);
+          font-family: var(--font-pixel, monospace);
+          padding: 0.45rem 1rem;
+          font-size: 0.6rem;
           cursor: pointer;
-          &:disabled { opacity: 0.4; }
+          &:disabled { opacity: 0.3; }
         }
       }
     }

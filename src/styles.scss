@@ -1,47 +1,58 @@
-/* ─── Rotom — Global Styles ─── */
+/* ─── Rotom — Retro Pixel Art / Pokémon Style ─── */
 
-:root {
-  /* Dark theme (default) */
-  --bg-primary: #000000;
-  --bg-secondary: #1c1c1e;
-  --bg-tertiary: #2c2c2e;
-  --bg-elevated: #1c1c1e;
-
-  --text-primary: #ffffff;
-  --text-secondary: #8e8e93;
-  --text-tertiary: #636366;
-
-  --accent: #ff3b30;
-  --accent-secondary: #ff6b35;
-  --success: #30d158;
-  --warning: #ffd60a;
-  --info: #0a84ff;
-
-  --border: #38383a;
-  --separator: #2c2c2e;
-
-  --card-radius: 16px;
-  --input-radius: 12px;
-
-  color-scheme: dark;
+@font-face {
+  font-family: 'Press Start 2P';
+  src: url('/assets/fonts/PressStart2P.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    --bg-primary: #f2f2f7;
-    --bg-secondary: #ffffff;
-    --bg-tertiary: #f2f2f7;
-    --bg-elevated: #ffffff;
+@font-face {
+  font-family: 'VT323';
+  src: url('/assets/fonts/VT323.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
 
-    --text-primary: #000000;
-    --text-secondary: #6c6c70;
-    --text-tertiary: #aeaeb2;
+:root {
+  /* Paleta Pokémon Retro: Verdes Eléctricos y Negros Profundos */
+  --bg-primary: #040804;
+  --bg-secondary: #091309;
+  --bg-tertiary: #0f200f;
+  --bg-elevated: #163016;
 
-    --border: #d1d1d6;
-    --separator: #e5e5ea;
+  --text-primary: #e6ffe6;
+  --text-secondary: #74ad74;
+  --text-tertiary: #3e683e;
 
-    color-scheme: light;
-  }
+  --accent: #00ff66;
+  --accent-secondary: #39ff14;
+  --accent-glow: rgba(0, 255, 102, 0.35);
+
+  --pixel-green: #00ff66;
+  --pixel-lime: #39ff14;
+  --pixel-emerald: #10b981;
+  --pixel-dark: #061006;
+
+  --success: #00ff66;
+  --warning: #ffd60a;
+  --danger: #ff3b30;
+  --info: #00d4ff;
+
+  --border: #184218;
+  --border-bright: #00ff66;
+  --separator: #0d220d;
+
+  /* Bordes nítidos estilo Pixel Art / Game Boy UI */
+  --card-radius: 4px;
+  --input-radius: 2px;
+
+  --font-pixel: 'Press Start 2P', monospace;
+  --font-terminal: 'VT323', monospace;
+
+  color-scheme: dark;
 }
 
 /* ─── Reset & Base ─── */
@@ -51,23 +62,24 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  image-rendering: pixelated;
 }
 
 html {
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
   scroll-behavior: smooth;
+  background-color: var(--bg-primary);
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display',
-    'Helvetica Neue', Arial, sans-serif;
-  font-size: 16px;
-  line-height: 1.5;
+  font-family: var(--font-terminal), monospace;
+  font-size: 20px;
+  line-height: 1.4;
   color: var(--text-primary);
   background: var(--bg-primary);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: unset;
   overscroll-behavior: none;
 
   /* iOS Safe Area */
@@ -76,6 +88,19 @@ body {
     env(safe-area-inset-right)
     env(safe-area-inset-bottom)
     env(safe-area-inset-left);
+}
+
+/* ─── Subtle CRT / Scanline retro scan (opcional y sutil) ─── */
+body::before {
+  content: " ";
+  display: block;
+  position: fixed;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+  background-size: 100% 4px;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.35;
 }
 
 /* ─── iOS PWA body scroll lock ─── */
@@ -92,11 +117,38 @@ app-root {
   -webkit-overflow-scrolling: touch;
 }
 
-/* ─── Typography ─── */
+/* ─── Typography Pixel ─── */
 h1, h2, h3, h4, h5, h6 {
-  font-weight: 700;
-  letter-spacing: -0.3px;
-  line-height: 1.2;
+  font-family: var(--font-pixel), monospace;
+  font-weight: 400;
+  color: var(--accent);
+  text-shadow: 0 0 8px rgba(0, 255, 102, 0.4);
+  letter-spacing: 0.5px;
+  line-height: 1.35;
+}
+
+h1 { font-size: 1.2rem; }
+h2 { font-size: 1.05rem; }
+h3 { font-size: 0.9rem; }
+h4 { font-size: 0.8rem; }
+
+p, span, label, input, button, select, textarea {
+  font-family: var(--font-terminal), monospace;
+}
+
+/* ─── Retro Pixel Box Framing ─── */
+.pixel-box {
+  background: var(--bg-secondary);
+  border: 3px solid var(--border-bright);
+  box-shadow: 3px 3px 0px #000, -1px -1px 0px rgba(0, 255, 102, 0.3) inset;
+}
+
+/* ─── Retro Pixel Button ─── */
+button {
+  font-family: var(--font-pixel), monospace;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
 
 /* ─── Utility Classes ─── */
@@ -111,8 +163,14 @@ h1, h2, h3, h4, h5, h6 {
   border: 0;
 }
 
-/* ─── Scrollbar (webkit) ─── */
+/* ─── Scrollbar ─── */
 ::-webkit-scrollbar {
-  width: 0;
-  height: 0;
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-bright);
 }

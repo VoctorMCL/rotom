@@ -11,132 +11,132 @@ import { SyncService } from '../../core/services/sync.service';
   template: `
     <div class="home-container">
       <!-- Greeting & Mascot Header -->
-      <section class="welcome-section">
+      <section class="pixel-welcome-box">
         <div class="welcome-header">
           <div class="welcome-text">
-            <span class="date-badge">{{ todayFormatted }}</span>
-            <h1>¡Hola, Víctor! 👋</h1>
-            <p class="subtitle">Rotom listo en tu dispositivo.</p>
+            <span class="pixel-date-badge">{{ todayFormatted }}</span>
+            <h1>¡HOLA, VÍCTOR! 👋</h1>
+            <p class="pixel-subtitle">ROTOM DEX V2.5 ONLINE EN TU CELULAR</p>
           </div>
           <div class="rotom-avatar">
-            <img src="assets/images/rotom/rotom-default.webp" alt="Rotom" class="floating-rotom" />
+            <img src="assets/images/rotom/rotom-sprite.webp" alt="Rotom" class="pixel-rotom-avatar" />
           </div>
         </div>
       </section>
 
-      <!-- Sync Status & Quick Cloud Sync -->
-      <section class="sync-banner" (click)="sync.pullFromCloud()">
+      <!-- Sync Status & Quick Cloud Sync (Estilo Link Cable) -->
+      <section class="pixel-sync-banner" (click)="sync.pullFromCloud()">
         <div class="sync-left">
-          <span class="sync-indicator" [class]="sync.syncState()"></span>
+          <span class="pixel-led" [class]="sync.syncState()"></span>
           <div class="sync-text">
-            <strong>PC ↔ Celular</strong>
+            <strong>LINK PC ↔ CELULAR</strong>
             <span>{{ sync.statusMessage() }}</span>
           </div>
         </div>
-        <button class="btn-sync-action" [disabled]="sync.syncState() === 'syncing'">
-          {{ sync.syncState() === 'syncing' ? 'Bajando...' : 'Bajar cambios del PC ⬇️' }}
+        <button class="pixel-btn-action" [disabled]="sync.syncState() === 'syncing'">
+          {{ sync.syncState() === 'syncing' ? 'BAJANDO...' : 'BAJAR CAMBIOS ⬇️' }}
         </button>
       </section>
 
       @if (sync.toastMessage()) {
-        <div class="sync-toast-home">
+        <div class="pixel-toast-alert">
           {{ sync.toastMessage() }}
         </div>
       }
 
       <!-- Safari Storage Protection Alert / Status -->
       @if (!storage.isStandalone() && !storage.isPersistent()) {
-        <div class="banner-safari-install" (click)="requestPersistence()">
-          <span class="banner-icon">🛡️</span>
+        <div class="pixel-banner-warning" (click)="requestPersistence()">
+          <span class="banner-icon">⚠️</span>
           <div class="banner-content">
-            <strong>Blindaje Safari para iPhone</strong>
-            <span>Pulsa Compartir > "Añadir a pantalla de inicio" para proteger datos de la purga de 7 días.</span>
+            <strong>MEMORIA SAFARI PENDIENTE</strong>
+            <span>Toca Compartir > "Añadir a pantalla de inicio" para blindar el guardado offline.</span>
           </div>
         </div>
       } @else {
-        <div class="banner-safari-ok">
-          <span class="ok-icon">✓</span>
-          <span>Almacenamiento protegido en iOS (100% offline).</span>
+        <div class="pixel-banner-ok">
+          <span class="ok-icon">🛡️</span>
+          <span>MEMORIA FLASH BLINDADA (100% OFFLINE EN SAFARI)</span>
         </div>
       }
 
-      <!-- ACCESOS RÁPIDOS PRINCIPALES -->
+      <!-- ACCESOS RÁPIDOS PRINCIPALES (POKÉMON MENU BOXES) -->
       <section class="quick-access-section">
-        <h3 class="section-title">Accesos Rápidos</h3>
+        <h3 class="section-title">MENU PRINCIPAL</h3>
 
-        <div class="quick-access-grid">
+        <div class="pixel-grid">
           <!-- 1. Compras (Éxito & D1) -->
-          <a routerLink="/shopping" class="quick-tile shopping-tile">
+          <a routerLink="/shopping" class="pixel-tile shopping-tile">
             <div class="tile-top">
-              <span class="tile-emoji">🛒</span>
+              <span class="tile-icon">🛒</span>
               <div class="store-badges">
-                <span class="badge-d1">D1: {{ storage.shoppingByStore().d1.length }}</span>
-                <span class="badge-exito">Éxito: {{ storage.shoppingByStore().exito.length }}</span>
+                <span class="badge-d1">D1:{{ storage.shoppingByStore().d1.length }}</span>
+                <span class="badge-exito">ÉXI:{{ storage.shoppingByStore().exito.length }}</span>
               </div>
             </div>
             <div class="tile-bottom">
-              <h4>Lista de Compras</h4>
-              <p>{{ storage.uncheckedShoppingCount() }} productos pendientes</p>
+              <h4>LISTA COMPRAS</h4>
+              <p>{{ storage.uncheckedShoppingCount() }} items pendientes</p>
             </div>
           </a>
 
-          <!-- 2. Lavadora (Modo Lavado) -->
-          <a routerLink="/wiki" [queryParams]="{ type: 'laundry' }" class="quick-tile wash-tile">
+          <!-- 2. Lavadora (Rotom Wash - Agua) -->
+          <a routerLink="/wiki" [queryParams]="{ type: 'laundry' }" class="pixel-tile wash-tile">
             <div class="tile-top">
-              <img src="assets/images/rotom/rotom-wash.webp" alt="Rotom Lavadora" class="tile-rotom-img wash-glow" />
-              <span class="type-pill-water">Agua 💧</span>
+              <img src="assets/images/rotom/rotom-wash-sprite.webp" alt="Rotom Lavadora" class="tile-sprite" />
+              <span class="type-pill-water">AGUA 💧</span>
             </div>
             <div class="tile-bottom">
-              <h4>Lavadora de Ropa</h4>
-              <p>Manuales de lavado y cuidado</p>
+              <h4>ROTOM WASH</h4>
+              <p>Guías de lavado y telas</p>
             </div>
           </a>
 
-          <!-- 3. Cocina & Recetas (Modo Horno) -->
-          <a routerLink="/wiki" [queryParams]="{ type: 'recipe' }" class="quick-tile heat-tile">
+          <!-- 3. Cocina & Recetas (Rotom Heat - Fuego) -->
+          <a routerLink="/wiki" [queryParams]="{ type: 'recipe' }" class="pixel-tile heat-tile">
             <div class="tile-top">
-              <img src="assets/images/rotom/rotom-heat.webp" alt="Rotom Horno" class="tile-rotom-img heat-glow" />
-              <span class="type-pill-fire">Fuego 🔥</span>
+              <img src="assets/images/rotom/rotom-heat-sprite.webp" alt="Rotom Horno" class="tile-sprite" />
+              <span class="type-pill-fire">FUEGO 🔥</span>
             </div>
             <div class="tile-bottom">
-              <h4>Cocina & Recetas</h4>
-              <p>Pastel de choclo, sopaipillas...</p>
+              <h4>ROTOM HORNO</h4>
+              <p>Recetas y cocina casera</p>
             </div>
           </a>
 
           <!-- 4. Calendario / Agenda -->
-          <a routerLink="/calendar" class="quick-tile calendar-tile">
+          <a routerLink="/calendar" class="pixel-tile calendar-tile">
             <div class="tile-top">
-              <span class="tile-emoji">📅</span>
-              <span class="tile-stat">{{ todayEventsCount }} hoy</span>
+              <span class="tile-icon">📅</span>
+              <span class="tile-stat">{{ todayEventsCount }} HOY</span>
             </div>
             <div class="tile-bottom">
-              <h4>Agenda</h4>
-              <p>Planificación de comidas y lavados</p>
+              <h4>AGENDA MES</h4>
+              <p>Comidas y repeticiones</p>
             </div>
           </a>
 
           <!-- 5. Tareas Rápidas -->
-          <a routerLink="/todo" class="quick-tile todo-tile">
+          <a routerLink="/todo" class="pixel-tile todo-tile">
             <div class="tile-top">
-              <span class="tile-emoji">✓</span>
-              <span class="tile-stat">{{ storage.pendingTodoCount() }} activas</span>
+              <span class="tile-icon">✓</span>
+              <span class="tile-stat">{{ storage.pendingTodoCount() }} ACT</span>
             </div>
             <div class="tile-bottom">
-              <h4>Tareas</h4>
-              <p>To-Do list ergonómica a una mano</p>
+              <h4>MISIONES</h4>
+              <p>Tareas ergonómicas</p>
             </div>
           </a>
 
           <!-- 6. Ajustes & Backup -->
-          <a routerLink="/settings" class="quick-tile settings-tile">
+          <a routerLink="/settings" class="pixel-tile settings-tile">
             <div class="tile-top">
-              <span class="tile-emoji">⚙️</span>
-              <span class="tile-stat">Local</span>
+              <span class="tile-icon">⚙️</span>
+              <span class="tile-stat">LOCAL</span>
             </div>
             <div class="tile-bottom">
-              <h4>Ajustes</h4>
-              <p>Seguridad Face ID, PIN y Backup</p>
+              <h4>CONFIG</h4>
+              <p>PIN, Face ID y Backup</p>
             </div>
           </a>
         </div>
@@ -145,14 +145,14 @@ import { SyncService } from '../../core/services/sync.service';
       <!-- Highlights del Catálogo -->
       <section class="quick-wiki">
         <div class="section-header">
-          <h3>Destacados en Disco</h3>
-          <a routerLink="/wiki" class="see-all">Ver todos →</a>
+          <h3>ARCHIVADOS EN DISCO</h3>
+          <a routerLink="/wiki" class="pixel-see-all">VER TODOS ▶</a>
         </div>
 
         <div class="horizontal-scroll">
-          @for (item of catalog.items(); track item.id) {
-            <a [routerLink]="['/wiki', item.id]" class="wiki-card-mini">
-              <div class="cover-placeholder">
+          @for (item of catalog.allItems(); track item.id) {
+            <a [routerLink]="['/wiki', item.id]" class="pixel-wiki-mini">
+              <div class="mini-sprite-wrap">
                 <img
                   [src]="item.type === 'recipe' ? 'assets/images/rotom/rotom-heat-sprite.webp' : 'assets/images/rotom/rotom-wash-sprite.webp'"
                   alt=""
@@ -162,7 +162,7 @@ import { SyncService } from '../../core/services/sync.service';
               <div class="mini-info">
                 <h4>{{ item.title }}</h4>
                 <span class="mini-meta">
-                  {{ item.type === 'recipe' ? 'Receta · Horno' : 'Prendas · Lavadora' }}
+                  {{ item.type === 'recipe' ? 'FORMA HORNO 🔥' : 'FORMA LAVADO 💧' }}
                 </span>
               </div>
             </a>
@@ -175,70 +175,77 @@ import { SyncService } from '../../core/services/sync.service';
     .home-container {
       display: flex;
       flex-direction: column;
-      gap: 1.25rem;
+      gap: 1.15rem;
     }
 
-    .welcome-section {
-      margin-top: 0.25rem;
+    /* ─── Pixel Welcome Box ─── */
+    .pixel-welcome-box {
+      background: #081408;
+      border: 3px solid var(--border-bright, #00ff66);
+      box-shadow: 3px 3px 0px #000, -1px -1px 0px rgba(0, 255, 102, 0.3) inset;
+      padding: 0.85rem 1rem;
 
       .welcome-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
+        gap: 0.5rem;
       }
 
-      .welcome-text { flex: 1; }
+      .welcome-text {
+        flex: 1;
+
+        .pixel-date-badge {
+          display: inline-block;
+          font-family: var(--font-pixel, monospace);
+          font-size: 0.55rem;
+          color: var(--accent, #00ff66);
+          text-transform: uppercase;
+          margin-bottom: 0.35rem;
+        }
+
+        h1 {
+          font-size: 1.15rem;
+          margin: 0;
+        }
+
+        .pixel-subtitle {
+          font-family: var(--font-terminal, monospace);
+          font-size: 1.1rem;
+          color: var(--text-secondary, #74ad74);
+          margin-top: 0.25rem;
+        }
+      }
 
       .rotom-avatar {
-        width: 76px;
-        height: 76px;
+        width: 68px;
+        height: 68px;
         display: flex;
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
 
-        .floating-rotom {
-          width: 72px;
-          height: 72px;
+        .pixel-rotom-avatar {
+          width: 58px;
+          height: 58px;
           object-fit: contain;
-          animation: rotomFloat 3s ease-in-out infinite alternate;
-          filter: drop-shadow(0 0 12px rgba(255, 107, 53, 0.4));
+          image-rendering: pixelated;
+          filter: drop-shadow(0 0 8px rgba(0, 255, 102, 0.5));
+          animation: pixelFloat 2s steps(2) infinite alternate;
         }
-      }
-
-      .date-badge {
-        display: inline-block;
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: var(--text-secondary, #8e8e93);
-        margin-bottom: 0.25rem;
-      }
-
-      h1 {
-        font-size: 1.8rem;
-        font-weight: 800;
-        margin: 0;
-        letter-spacing: -0.5px;
-      }
-
-      .subtitle {
-        color: var(--text-secondary, #8e8e93);
-        font-size: 0.85rem;
-        margin-top: 0.25rem;
       }
     }
 
-    /* ─── Sync Status Banner (PC ↔ Celular) ─── */
-    .sync-banner {
+    /* ─── Sync Status Banner (Link Cable) ─── */
+    .pixel-sync-banner {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: var(--bg-secondary, #1c1c1e);
-      border: 1px solid var(--border, #38383a);
-      border-radius: var(--card-radius, 16px);
-      padding: 0.75rem 1rem;
+      background: #0a170a;
+      border: 2px solid var(--border, #184218);
+      border-left: 6px solid var(--border-bright, #00ff66);
+      box-shadow: 2px 2px 0px #000;
+      padding: 0.65rem 0.85rem;
       cursor: pointer;
 
       .sync-left {
@@ -246,199 +253,215 @@ import { SyncService } from '../../core/services/sync.service';
         align-items: center;
         gap: 0.65rem;
 
-        .sync-indicator {
-          width: 10px;
-          height: 10px;
-          border-radius: 50%;
-          background: #8e8e93;
+        .pixel-led {
+          width: 8px;
+          height: 8px;
+          background: #477047;
+          border: 1px solid #000;
 
-          &.synced { background: var(--success, #30d158); }
-          &.syncing { background: var(--warning, #ffd60a); animation: pulse 1s infinite; }
-          &.offline { background: #636366; }
+          &.synced { background: var(--success, #00ff66); box-shadow: 0 0 6px #00ff66; }
+          &.syncing { background: var(--warning, #ffd60a); animation: blink 0.5s infinite; }
+          &.offline { background: #3e683e; }
         }
 
         .sync-text {
           display: flex;
           flex-direction: column;
-          strong { font-size: 0.85rem; color: #fff; }
-          span { font-size: 0.75rem; color: var(--text-secondary, #8e8e93); }
+          strong {
+            font-family: var(--font-pixel, monospace);
+            font-size: 0.65rem;
+            color: var(--text-primary, #e6ffe6);
+          }
+          span {
+            font-family: var(--font-terminal, monospace);
+            font-size: 1rem;
+            color: var(--text-secondary, #74ad74);
+          }
         }
       }
 
-      .btn-sync-action {
-        background: var(--bg-tertiary, #2c2c2e);
-        border: 1px solid var(--border, #38383a);
-        color: var(--text-primary, #fff);
-        font-size: 0.75rem;
-        font-weight: 600;
-        padding: 0.35rem 0.65rem;
-        border-radius: 8px;
+      .pixel-btn-action {
+        background: #0f2b0f;
+        border: 2px solid var(--border-bright, #00ff66);
+        box-shadow: 2px 2px 0px #000;
+        color: var(--accent, #00ff66);
+        font-family: var(--font-pixel, monospace);
+        font-size: 0.55rem;
+        padding: 0.4rem 0.6rem;
         cursor: pointer;
-        &:active { opacity: 0.7; }
+
+        &:active {
+          transform: translate(1px, 1px);
+          box-shadow: 1px 1px 0px #000;
+        }
       }
     }
 
-    .sync-toast-home {
-      background: rgba(48, 209, 88, 0.15);
-      border: 1px solid rgba(48, 209, 88, 0.35);
-      color: var(--success, #30d158);
-      font-size: 0.8rem;
-      font-weight: 600;
-      padding: 0.55rem 0.85rem;
-      border-radius: 12px;
+    .pixel-toast-alert {
+      background: #0f2e0f;
+      border: 2px solid var(--accent, #00ff66);
+      box-shadow: 2px 2px 0px #000;
+      color: var(--accent, #00ff66);
+      font-family: var(--font-terminal, monospace);
+      font-size: 1.15rem;
+      padding: 0.5rem 0.85rem;
       text-align: center;
     }
 
     /* ─── Safari Protection Status ─── */
-    .banner-safari-install {
+    .pixel-banner-warning {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
-      padding: 0.85rem 1rem;
-      border-radius: var(--card-radius, 16px);
-      background: rgba(255, 214, 10, 0.12);
-      border: 1px solid rgba(255, 214, 10, 0.3);
+      gap: 0.65rem;
+      padding: 0.65rem 0.85rem;
+      background: #1c1a05;
+      border: 2px solid #ffd60a;
+      box-shadow: 2px 2px 0px #000;
       color: #ffd60a;
       cursor: pointer;
 
-      .banner-icon { font-size: 1.4rem; }
+      .banner-icon { font-size: 1.2rem; }
       .banner-content {
         display: flex;
         flex-direction: column;
-        strong { font-size: 0.85rem; }
-        span { font-size: 0.75rem; opacity: 0.9; line-height: 1.35; }
+        strong { font-family: var(--font-pixel, monospace); font-size: 0.6rem; }
+        span { font-family: var(--font-terminal, monospace); font-size: 1.05rem; line-height: 1.25; }
       }
     }
 
-    .banner-safari-ok {
+    .pixel-banner-ok {
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      padding: 0.5rem 0.85rem;
-      border-radius: 10px;
-      background: rgba(48, 209, 88, 0.1);
-      border: 1px solid rgba(48, 209, 88, 0.25);
-      color: var(--success, #30d158);
-      font-size: 0.75rem;
-      font-weight: 600;
+      padding: 0.45rem 0.75rem;
+      background: #091709;
+      border: 2px solid var(--border, #184218);
+      color: var(--accent, #00ff66);
+      font-family: var(--font-pixel, monospace);
+      font-size: 0.55rem;
 
-      .ok-icon { font-size: 0.9rem; }
+      .ok-icon { font-size: 0.85rem; }
     }
 
     /* ─── ACCESOS RÁPIDOS GRID ─── */
     .quick-access-section {
       .section-title {
-        font-size: 1.15rem;
-        font-weight: 800;
-        margin: 0 0 0.75rem;
+        font-size: 0.85rem;
+        margin-bottom: 0.65rem;
       }
     }
 
-    .quick-access-grid {
+    .pixel-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 0.75rem;
+      gap: 0.65rem;
     }
 
-    .quick-tile {
-      background: var(--bg-secondary, #1c1c1e);
-      border: 1px solid var(--border, #38383a);
-      border-radius: var(--card-radius, 16px);
-      padding: 1rem;
+    .pixel-tile {
+      background: #081408;
+      border: 2px solid var(--border-bright, #00ff66);
+      box-shadow: 3px 3px 0px #000;
+      padding: 0.75rem;
       text-decoration: none;
       color: inherit;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      min-height: 120px;
-      transition: all 0.15s ease;
+      min-height: 110px;
       -webkit-tap-highlight-color: transparent;
 
       &:active {
-        transform: scale(0.97);
-        background: var(--bg-tertiary, #2c2c2e);
+        transform: translate(2px, 2px);
+        box-shadow: 1px 1px 0px #000;
+        background: #0e240e;
       }
 
       .tile-top {
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.35rem;
       }
 
-      .tile-emoji { font-size: 1.6rem; }
+      .tile-icon { font-size: 1.35rem; }
       .tile-stat {
-        font-size: 0.7rem;
-        background: var(--bg-tertiary, #2c2c2e);
-        padding: 0.2rem 0.45rem;
-        border-radius: 6px;
-        color: var(--text-secondary, #8e8e93);
-        font-weight: 700;
+        font-family: var(--font-pixel, monospace);
+        font-size: 0.55rem;
+        background: #040804;
+        border: 1px solid var(--border, #184218);
+        padding: 0.2rem 0.35rem;
+        color: var(--accent, #00ff66);
       }
 
       .tile-bottom {
-        h4 { font-size: 0.95rem; font-weight: 700; margin: 0 0 0.2rem; }
-        p { font-size: 0.75rem; color: var(--text-secondary, #8e8e93); margin: 0; line-height: 1.3; }
+        h4 {
+          font-family: var(--font-pixel, monospace);
+          font-size: 0.65rem;
+          margin-bottom: 0.25rem;
+          color: #fff;
+        }
+        p {
+          font-family: var(--font-terminal, monospace);
+          font-size: 1.05rem;
+          color: var(--text-secondary, #74ad74);
+          line-height: 1.2;
+        }
       }
 
       &.shopping-tile {
-        border-color: rgba(255, 59, 48, 0.3);
+        border-color: #00ff66;
         .store-badges {
           display: flex;
           flex-direction: column;
-          gap: 0.2rem;
+          gap: 2px;
           align-items: flex-end;
 
           .badge-d1 {
-            font-size: 0.65rem;
-            font-weight: 800;
-            background: rgba(255, 214, 10, 0.18);
-            color: #ffd60a;
-            padding: 0.15rem 0.35rem;
-            border-radius: 4px;
+            font-family: var(--font-pixel, monospace);
+            font-size: 0.45rem;
+            background: #ffd60a;
+            color: #000;
+            padding: 1px 3px;
           }
           .badge-exito {
-            font-size: 0.65rem;
-            font-weight: 800;
-            background: rgba(255, 59, 48, 0.18);
-            color: #ff3b30;
-            padding: 0.15rem 0.35rem;
-            border-radius: 4px;
+            font-family: var(--font-pixel, monospace);
+            font-size: 0.45rem;
+            background: #ff3b30;
+            color: #fff;
+            padding: 1px 3px;
           }
         }
       }
 
       &.wash-tile {
-        border-color: rgba(10, 132, 255, 0.3);
+        border-color: #00d4ff;
         .type-pill-water {
-          font-size: 0.65rem;
-          font-weight: 800;
-          color: #0a84ff;
-          background: rgba(10, 132, 255, 0.15);
-          padding: 0.15rem 0.4rem;
-          border-radius: 6px;
+          font-family: var(--font-pixel, monospace);
+          font-size: 0.5rem;
+          color: #00d4ff;
+          background: #002b3d;
+          padding: 1px 4px;
+          border: 1px solid #00d4ff;
         }
       }
 
       &.heat-tile {
-        border-color: rgba(255, 107, 53, 0.3);
+        border-color: #ff6b35;
         .type-pill-fire {
-          font-size: 0.65rem;
-          font-weight: 800;
+          font-family: var(--font-pixel, monospace);
+          font-size: 0.5rem;
           color: #ff6b35;
-          background: rgba(255, 107, 53, 0.15);
-          padding: 0.15rem 0.4rem;
-          border-radius: 6px;
+          background: #331505;
+          padding: 1px 4px;
+          border: 1px solid #ff6b35;
         }
       }
 
-      .tile-rotom-img {
-        width: 38px;
-        height: 38px;
+      .tile-sprite {
+        width: 32px;
+        height: 32px;
         object-fit: contain;
-
-        &.wash-glow { filter: drop-shadow(0 0 6px rgba(10, 132, 255, 0.5)); }
-        &.heat-glow { filter: drop-shadow(0 0 6px rgba(255, 107, 53, 0.5)); }
+        image-rendering: pixelated;
       }
     }
 
@@ -448,43 +471,44 @@ import { SyncService } from '../../core/services/sync.service';
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 0.75rem;
+        margin-bottom: 0.65rem;
 
-        h3 { font-size: 1.15rem; font-weight: 800; margin: 0; }
-        .see-all {
-          font-size: 0.8rem;
-          color: var(--accent, #ff3b30);
+        h3 { font-size: 0.8rem; margin: 0; }
+        .pixel-see-all {
+          font-family: var(--font-pixel, monospace);
+          font-size: 0.55rem;
+          color: var(--accent, #00ff66);
           text-decoration: none;
-          font-weight: 600;
         }
       }
     }
 
     .horizontal-scroll {
       display: flex;
-      gap: 0.75rem;
+      gap: 0.65rem;
       overflow-x: auto;
       padding-bottom: 0.5rem;
-      scroll-snap-type: x mandatory;
       -webkit-overflow-scrolling: touch;
       &::-webkit-scrollbar { display: none; }
     }
 
-    .wiki-card-mini {
-      flex: 0 0 160px;
-      scroll-snap-align: start;
-      background: var(--bg-secondary, #1c1c1e);
-      border: 1px solid var(--border, #38383a);
-      border-radius: var(--card-radius, 16px);
-      overflow: hidden;
+    .pixel-wiki-mini {
+      flex: 0 0 150px;
+      background: #081408;
+      border: 2px solid var(--border-bright, #00ff66);
+      box-shadow: 2px 2px 0px #000;
       text-decoration: none;
       color: inherit;
 
-      &:active { transform: scale(0.97); }
+      &:active {
+        transform: translate(1px, 1px);
+        box-shadow: 1px 1px 0px #000;
+      }
 
-      .cover-placeholder {
-        height: 70px;
-        background: linear-gradient(135deg, #2c2c2e, #1c1c1e);
+      .mini-sprite-wrap {
+        height: 60px;
+        background: #040804;
+        border-bottom: 2px solid var(--border, #184218);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -497,30 +521,32 @@ import { SyncService } from '../../core/services/sync.service';
       }
 
       .mini-info {
-        padding: 0.65rem 0.75rem;
+        padding: 0.5rem;
         h4 {
-          font-size: 0.85rem;
+          font-family: var(--font-pixel, monospace);
+          font-size: 0.55rem;
           margin: 0;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
+          color: #fff;
         }
         .mini-meta {
-          font-size: 0.7rem;
-          color: var(--text-secondary, #8e8e93);
+          font-family: var(--font-terminal, monospace);
+          font-size: 0.95rem;
+          color: var(--accent, #00ff66);
         }
       }
     }
 
-    @keyframes rotomFloat {
+    @keyframes pixelFloat {
       0% { transform: translateY(0px); }
-      50% { transform: translateY(-5px); }
-      100% { transform: translateY(-10px); }
+      100% { transform: translateY(-4px); }
     }
 
-    @keyframes pulse {
+    @keyframes blink {
       0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
+      50% { opacity: 0.2; }
     }
   `],
 })

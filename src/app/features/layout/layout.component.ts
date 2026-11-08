@@ -14,11 +14,11 @@ import { LocalLockService } from '../../core/services/local-lock.service';
       <header class="app-header">
         <div class="brand">
           <img src="assets/images/rotom/rotom-sprite.webp" alt="Rotom" class="brand-sprite" />
-          <span class="brand-title">Rotom</span>
+          <span class="brand-title">ROTOM</span>
         </div>
         <div class="header-actions">
           <app-cache-status></app-cache-status>
-          <button class="icon-btn lock-btn" (click)="lockApp()" title="Bloquear">
+          <button class="pixel-icon-btn lock-btn" (click)="lockApp()" title="Bloquear">
             🔒
           </button>
         </div>
@@ -29,46 +29,46 @@ import { LocalLockService } from '../../core/services/local-lock.service';
         <router-outlet></router-outlet>
       </main>
 
-      <!-- iOS Bottom Tab Bar -->
+      <!-- iOS Bottom Tab Bar Retro Game Boy Style -->
       <nav class="bottom-tab-bar">
         <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="tab-item">
           <span class="tab-icon">🏠</span>
-          <span class="tab-label">Inicio</span>
+          <span class="tab-label">INICIO</span>
         </a>
 
         <a routerLink="/wiki" routerLinkActive="active" class="tab-item">
           <span class="tab-icon">📖</span>
-          <span class="tab-label">Wiki</span>
+          <span class="tab-label">DEX</span>
         </a>
 
         <a routerLink="/shopping" routerLinkActive="active" class="tab-item">
           <span class="tab-icon">
             🛒
             @if (storage.uncheckedShoppingCount() > 0) {
-              <span class="badge">{{ storage.uncheckedShoppingCount() }}</span>
+              <span class="pixel-badge">{{ storage.uncheckedShoppingCount() }}</span>
             }
           </span>
-          <span class="tab-label">Compras</span>
+          <span class="tab-label">ITEMS</span>
         </a>
 
         <a routerLink="/todo" routerLinkActive="active" class="tab-item">
           <span class="tab-icon">
             ✓
             @if (storage.pendingTodoCount() > 0) {
-              <span class="badge">{{ storage.pendingTodoCount() }}</span>
+              <span class="pixel-badge">{{ storage.pendingTodoCount() }}</span>
             }
           </span>
-          <span class="tab-label">Tareas</span>
+          <span class="tab-label">MISIONES</span>
         </a>
 
         <a routerLink="/calendar" routerLinkActive="active" class="tab-item">
           <span class="tab-icon">📅</span>
-          <span class="tab-label">Agenda</span>
+          <span class="tab-label">AGENDA</span>
         </a>
 
         <a routerLink="/settings" routerLinkActive="active" class="tab-item">
           <span class="tab-icon">⚙️</span>
-          <span class="tab-label">Ajustes</span>
+          <span class="tab-label">CONFIG</span>
         </a>
       </nav>
     </div>
@@ -78,8 +78,8 @@ import { LocalLockService } from '../../core/services/local-lock.service';
       display: flex;
       flex-direction: column;
       height: 100dvh;
-      background: var(--bg-primary, #000);
-      color: var(--text-primary, #fff);
+      background: var(--bg-primary, #040804);
+      color: var(--text-primary, #e6ffe6);
       overflow: hidden;
     }
 
@@ -87,11 +87,10 @@ import { LocalLockService } from '../../core/services/local-lock.service';
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0.75rem 1rem 0.5rem;
-      background: rgba(28, 28, 30, 0.85);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--border, #38383a);
+      padding: 0.65rem 0.85rem 0.5rem;
+      background: #061006;
+      border-bottom: 3px solid var(--border-bright, #00ff66);
+      box-shadow: 0 3px 0px rgba(0, 0, 0, 0.8);
       z-index: 10;
     }
 
@@ -99,9 +98,15 @@ import { LocalLockService } from '../../core/services/local-lock.service';
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      font-weight: 800;
-      font-size: 1.2rem;
-      letter-spacing: -0.3px;
+
+      .brand-title {
+        font-family: var(--font-pixel, monospace);
+        font-weight: 700;
+        font-size: 0.95rem;
+        letter-spacing: 1px;
+        color: var(--accent, #00ff66);
+        text-shadow: 0 0 8px rgba(0, 255, 102, 0.6);
+      }
     }
 
     .brand-sprite {
@@ -117,13 +122,13 @@ import { LocalLockService } from '../../core/services/local-lock.service';
       gap: 0.5rem;
     }
 
-    .icon-btn {
-      background: var(--bg-tertiary, #2c2c2e);
-      border: 1px solid var(--border, #38383a);
-      color: var(--text-primary, #fff);
+    .pixel-icon-btn {
+      background: #0c1c0c;
+      border: 2px solid var(--border-bright, #00ff66);
+      box-shadow: 2px 2px 0px #000;
+      color: var(--accent, #00ff66);
       width: 32px;
       height: 32px;
-      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -132,8 +137,8 @@ import { LocalLockService } from '../../core/services/local-lock.service';
       -webkit-tap-highlight-color: transparent;
 
       &:active {
-        opacity: 0.7;
-        transform: scale(0.95);
+        transform: translate(1px, 1px);
+        box-shadow: 1px 1px 0px #000;
       }
     }
 
@@ -141,7 +146,7 @@ import { LocalLockService } from '../../core/services/local-lock.service';
       flex: 1;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
-      padding: 1rem 1rem calc(5.5rem + env(safe-area-inset-bottom)) 1rem;
+      padding: 1rem 0.85rem calc(5.5rem + env(safe-area-inset-bottom)) 0.85rem;
     }
 
     .bottom-tab-bar {
@@ -154,10 +159,9 @@ import { LocalLockService } from '../../core/services/local-lock.service';
       align-items: center;
       height: calc(3.8rem + env(safe-area-inset-bottom));
       padding-bottom: env(safe-area-inset-bottom);
-      background: rgba(28, 28, 30, 0.92);
-      backdrop-filter: blur(25px);
-      -webkit-backdrop-filter: blur(25px);
-      border-top: 1px solid var(--border, #38383a);
+      background: #061006;
+      border-top: 3px solid var(--border-bright, #00ff66);
+      box-shadow: 0 -3px 0px rgba(0, 0, 0, 0.9);
       z-index: 100;
     }
 
@@ -169,12 +173,17 @@ import { LocalLockService } from '../../core/services/local-lock.service';
       flex: 1;
       height: 100%;
       text-decoration: none;
-      color: var(--text-secondary, #8e8e93);
+      color: var(--text-secondary, #74ad74);
       transition: color 0.15s ease;
       -webkit-tap-highlight-color: transparent;
 
       &.active {
-        color: var(--accent, #ff3b30);
+        color: var(--accent, #00ff66);
+        text-shadow: 0 0 8px rgba(0, 255, 102, 0.6);
+
+        .tab-label {
+          color: var(--accent, #00ff66);
+        }
       }
 
       &:active {
@@ -183,34 +192,37 @@ import { LocalLockService } from '../../core/services/local-lock.service';
     }
 
     .tab-icon {
-      font-size: 1.25rem;
+      font-size: 1.15rem;
       position: relative;
       display: inline-flex;
       align-items: center;
       justify-content: center;
     }
 
-    .badge {
+    .pixel-badge {
       position: absolute;
-      top: -4px;
-      right: -8px;
-      background: var(--accent, #ff3b30);
-      color: #fff;
-      font-size: 0.65rem;
+      top: -5px;
+      right: -10px;
+      background: #ffd60a;
+      color: #000;
+      font-family: var(--font-pixel, monospace);
+      font-size: 0.5rem;
       font-weight: 700;
       min-width: 16px;
       height: 16px;
-      border-radius: 8px;
+      border: 1px solid #000;
+      box-shadow: 1px 1px 0px #000;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 0 4px;
+      padding: 0 2px;
     }
 
     .tab-label {
-      font-size: 0.65rem;
-      font-weight: 500;
-      margin-top: 2px;
+      font-family: var(--font-pixel, monospace);
+      font-size: 0.5rem;
+      letter-spacing: 0.5px;
+      margin-top: 3px;
     }
   `],
 })

@@ -16,30 +16,30 @@ import type { ShoppingItem, SupermarketStore } from '../../core/models/state.mod
         <div class="header-text">
           <div class="title-with-sprite">
             <img src="assets/images/rotom/rotom-sprite.webp" alt="Rotom" class="header-sprite" />
-            <h2>Lista de Compras</h2>
+            <h2>ITEMS / COMPRAS</h2>
           </div>
           <span class="count-badge">
-            {{ storage.uncheckedShoppingCount() }} pendiente{{ storage.uncheckedShoppingCount() === 1 ? '' : 's' }}
+            [{{ storage.uncheckedShoppingCount() }} PENDIENTES]
           </span>
         </div>
 
         <div class="header-actions">
           @if (storage.shoppingList().length > 0) {
-            <button class="btn-clear" (click)="storage.clearCheckedItems()" title="Quitar productos comprados">
-              Limpiar comprados
+            <button class="pixel-btn-clear" (click)="storage.clearCheckedItems()" title="Quitar productos comprados">
+              LIMPIAR COMPRADOS
             </button>
           }
         </div>
       </header>
 
-      <!-- PC ↔ Celular Sync Bar -->
+      <!-- PC ↔ Celular Sync Bar (Link Cable) -->
       <div class="sync-strip" (click)="triggerSync()">
         <div class="sync-status-info">
           <span class="status-circle" [class]="sync.syncState()"></span>
           <span class="status-label">{{ sync.statusMessage() }}</span>
         </div>
         <button class="btn-mini-sync" [disabled]="sync.syncState() === 'syncing'">
-          {{ sync.syncState() === 'syncing' ? 'Bajando cambios...' : 'Bajar cambios del PC ⬇️' }}
+          {{ sync.syncState() === 'syncing' ? 'BAJANDO...' : 'BAJAR CAMBIOS PC ⬇️' }}
         </button>
       </div>
 
@@ -57,8 +57,7 @@ import type { ShoppingItem, SupermarketStore } from '../../core/models/state.mod
           [class.active]="activeStoreFilter() === 'all'"
           (click)="activeStoreFilter.set('all')"
         >
-          <span class="tab-badge-all">🌐</span>
-          Todos ({{ storage.shoppingList().length }})
+          TODOS ({{ storage.shoppingList().length }})
         </button>
 
         <button
@@ -67,8 +66,7 @@ import type { ShoppingItem, SupermarketStore } from '../../core/models/state.mod
           [class.active]="activeStoreFilter() === 'D1'"
           (click)="activeStoreFilter.set('D1')"
         >
-          <span class="store-dot dot-d1"></span>
-          D1 ({{ storage.shoppingByStore().d1.length }})
+          🟡 D1 ({{ storage.shoppingByStore().d1.length }})
         </button>
 
         <button
@@ -77,8 +75,7 @@ import type { ShoppingItem, SupermarketStore } from '../../core/models/state.mod
           [class.active]="activeStoreFilter() === 'Éxito'"
           (click)="activeStoreFilter.set('Éxito')"
         >
-          <span class="store-dot dot-exito"></span>
-          Éxito ({{ storage.shoppingByStore().exito.length }})
+          🔴 ÉXITO ({{ storage.shoppingByStore().exito.length }})
         </button>
       </div>
 
@@ -88,7 +85,7 @@ import type { ShoppingItem, SupermarketStore } from '../../core/models/state.mod
         <input
           type="text"
           [(ngModel)]="searchQuery"
-          placeholder="Buscar en {{ activeStoreLabel() }}..."
+          placeholder="BUSCAR EN {{ activeStoreLabel() }}..."
           class="search-input"
         />
         @if (searchQuery) {
@@ -99,7 +96,7 @@ import type { ShoppingItem, SupermarketStore } from '../../core/models/state.mod
       <!-- Quick Add Section (Añadir con selección D1 / Éxito) -->
       <div class="add-section">
         <div class="store-selector-row">
-          <span class="add-label">Comprar en:</span>
+          <span class="add-label">COMPRAR EN:</span>
           <div class="store-toggle-group">
             <button
               type="button"
@@ -115,7 +112,7 @@ import type { ShoppingItem, SupermarketStore } from '../../core/models/state.mod
               [class.selected]="newItemStore === 'Éxito'"
               (click)="newItemStore = 'Éxito'"
             >
-              🔴 Éxito
+              🔴 ÉXITO
             </button>
             <button
               type="button"
@@ -123,7 +120,7 @@ import type { ShoppingItem, SupermarketStore } from '../../core/models/state.mod
               [class.selected]="newItemStore === 'Otro'"
               (click)="newItemStore = 'Otro'"
             >
-              📦 Otro
+              📦 OTRO
             </button>
           </div>
         </div>
@@ -132,7 +129,7 @@ import type { ShoppingItem, SupermarketStore } from '../../core/models/state.mod
           <input
             type="text"
             [(ngModel)]="newItemName"
-            placeholder="Ej: Leche, Arroz, Pollo..."
+            placeholder="Item (Leche, Arroz...)"
             (keyup.enter)="addItem()"
             class="input-name"
           />
@@ -144,11 +141,11 @@ import type { ShoppingItem, SupermarketStore } from '../../core/models/state.mod
             class="input-qty"
           />
           <button class="btn-add-primary" (click)="addItem()">
-            + Añadir
+            + AÑADIR
           </button>
         </div>
 
-        <!-- Optional Category Chips (Vegetal, Carne, etc.) -->
+        <!-- Category Chips -->
         <div class="category-chips">
           @for (cat of availableCategories; track cat.id) {
             <button
@@ -167,14 +164,13 @@ import type { ShoppingItem, SupermarketStore } from '../../core/models/state.mod
       @if (editingItem(); as item) {
         <div class="edit-backdrop" (click)="closeEdit()">
           <div class="edit-sheet" (click)="$event.stopPropagation()">
-            <div class="sheet-handle"></div>
             <div class="sheet-header">
-              <h3>✏️ Editar Producto</h3>
+              <h3>✏️ EDITAR ITEM</h3>
               <button class="btn-close-sheet" (click)="closeEdit()">✕</button>
             </div>
 
             <div class="edit-form">
-              <label>Supermercado</label>
+              <label>SUPERMERCADO</label>
               <div class="store-toggle-group sheet-store-toggle">
                 <button
                   type="button"
@@ -190,7 +186,7 @@ import type { ShoppingItem, SupermarketStore } from '../../core/models/state.mod
                   [class.selected]="editStore === 'Éxito'"
                   (click)="editStore = 'Éxito'"
                 >
-                  🔴 Éxito
+                  🔴 ÉXITO
                 </button>
                 <button
                   type="button"
@@ -198,11 +194,11 @@ import type { ShoppingItem, SupermarketStore } from '../../core/models/state.mod
                   [class.selected]="editStore === 'Otro'"
                   (click)="editStore = 'Otro'"
                 >
-                  📦 Otro
+                  📦 OTRO
                 </button>
               </div>
 
-              <label>Nombre del producto</label>
+              <label>NOMBRE DEL ITEM</label>
               <input
                 type="text"
                 [(ngModel)]="editName"
@@ -210,7 +206,7 @@ import type { ShoppingItem, SupermarketStore } from '../../core/models/state.mod
                 class="sheet-input"
               />
 
-              <label>Cantidad o formato</label>
+              <label>CANTIDAD O FORMATO</label>
               <input
                 type="text"
                 [(ngModel)]="editQty"
@@ -218,7 +214,7 @@ import type { ShoppingItem, SupermarketStore } from '../../core/models/state.mod
                 class="sheet-input"
               />
 
-              <label>Categoría</label>
+              <label>CATEGORÍA</label>
               <div class="category-chips sheet-categories">
                 @for (cat of availableCategories; track cat.id) {
                   <button
@@ -238,14 +234,14 @@ import type { ShoppingItem, SupermarketStore } from '../../core/models/state.mod
                   class="btn-delete-confirm"
                   (click)="deleteItem(item.id!)"
                 >
-                  🗑️ Quitar
+                  🗑️ ELIMINAR
                 </button>
                 <button
                   type="button"
                   class="btn-save-confirm"
                   (click)="saveEdit(item.id!)"
                 >
-                  Guardar
+                  ✓ GUARDAR
                 </button>
               </div>
             </div>
@@ -256,17 +252,17 @@ import type { ShoppingItem, SupermarketStore } from '../../core/models/state.mod
       <!-- Items List by Store & Empty State -->
       @if (filteredItems().length === 0) {
         <div class="empty-state">
-          <img src="assets/images/rotom/rotom-default.webp" alt="Rotom" class="empty-rotom-img" />
+          <img src="assets/images/rotom/rotom-sprite.webp" alt="Rotom" class="empty-rotom-img" />
           @if (searchQuery) {
-            <h3>Sin resultados</h3>
-            <p>No se encontraron productos para "{{ searchQuery }}".</p>
+            <h3>SIN RESULTADOS</h3>
+            <p>No se encontraron items para "{{ searchQuery }}".</p>
           } @else {
-            <h3>¡Nada pendiente en {{ activeStoreLabel() }}!</h3>
-            <p>Añade lo que necesitas arriba o usa "Enviar a compras" desde las recetas.</p>
+            <h3>¡MOCHILA VACÍA EN {{ activeStoreLabel() }}!</h3>
+            <p>Añade lo que necesitas arriba o usa "Enviar a compras" desde la Wiki.</p>
           }
         </div>
       } @else {
-        <!-- Grouped by Store (in 'all' mode) or Single List -->
+        <!-- Grouped by Store -->
         <div class="store-sections-list">
           @for (group of storeGroups(); track group.storeName) {
             @if (group.items.length > 0) {
@@ -276,7 +272,7 @@ import type { ShoppingItem, SupermarketStore } from '../../core/models/state.mod
                     <span class="store-icon">{{ group.storeName === 'D1' ? '🟡' : (group.storeName === 'Éxito' ? '🔴' : '📦') }}</span>
                     <strong>{{ group.storeName }}</strong>
                   </div>
-                  <span class="store-items-count">{{ group.items.length }} producto{{ group.items.length === 1 ? '' : 's' }}</span>
+                  <span class="store-items-count">{{ group.items.length }} ITEM{{ group.items.length === 1 ? '' : 'S' }}</span>
                 </div>
 
                 <div class="items-list">
@@ -286,8 +282,8 @@ import type { ShoppingItem, SupermarketStore } from '../../core/models/state.mod
                       [class.checked]="item.checked"
                       (click)="toggleItem(item.id!)"
                     >
-                      <!-- One-handed Large Tap Circle -->
-                      <div class="checkbox-circle">
+                      <!-- Pixel Square Checkbox -->
+                      <div class="pixel-checkbox">
                         @if (item.checked) {
                           <span>✓</span>
                         }
@@ -311,7 +307,7 @@ import type { ShoppingItem, SupermarketStore } from '../../core/models/state.mod
                           type="button"
                           class="btn-icon-action btn-edit"
                           (click)="startEdit(item)"
-                          title="Editar producto"
+                          title="Editar"
                         >
                           ✏️
                         </button>
@@ -319,7 +315,7 @@ import type { ShoppingItem, SupermarketStore } from '../../core/models/state.mod
                           type="button"
                           class="btn-icon-action btn-delete"
                           (click)="deleteItem(item.id!)"
-                          title="Quitar producto"
+                          title="Quitar"
                         >
                           🗑️
                         </button>
@@ -338,7 +334,7 @@ import type { ShoppingItem, SupermarketStore } from '../../core/models/state.mod
     .shopping-container {
       display: flex;
       flex-direction: column;
-      gap: 1.15rem;
+      gap: 1rem;
     }
 
     .page-header {
@@ -357,125 +353,125 @@ import type { ShoppingItem, SupermarketStore } from '../../core/models/state.mod
           image-rendering: pixelated;
         }
 
-        h2 { font-size: 1.6rem; font-weight: 800; margin: 0; }
+        h2 { font-size: 0.95rem; margin: 0; }
       }
 
       .count-badge {
-        font-size: 0.8rem;
-        color: var(--accent, #ff3b30);
-        font-weight: 600;
+        font-family: var(--font-pixel, monospace);
+        font-size: 0.6rem;
+        color: var(--accent, #00ff66);
       }
 
-      .btn-clear {
-        background: var(--bg-tertiary, #2c2c2e);
-        border: 1px solid var(--border, #38383a);
-        color: var(--text-secondary, #8e8e93);
-        font-size: 0.75rem;
-        padding: 0.4rem 0.75rem;
-        border-radius: 20px;
+      .pixel-btn-clear {
+        background: #091709;
+        border: 2px solid var(--border, #184218);
+        color: var(--text-secondary, #74ad74);
+        font-family: var(--font-pixel, monospace);
+        font-size: 0.55rem;
+        padding: 0.35rem 0.55rem;
+        box-shadow: 2px 2px 0px #000;
         cursor: pointer;
-        -webkit-tap-highlight-color: transparent;
 
-        &:active { opacity: 0.7; }
+        &:active {
+          transform: translate(1px, 1px);
+          box-shadow: 1px 1px 0px #000;
+        }
       }
     }
 
-    /* ─── Sync Status Bar (PC ↔ Celular) ─── */
+    /* ─── Sync Status Bar (Link Cable) ─── */
     .sync-strip {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: var(--bg-secondary, #1c1c1e);
-      border: 1px solid var(--border, #38383a);
-      border-radius: 12px;
-      padding: 0.5rem 0.85rem;
+      background: #081408;
+      border: 2px solid var(--border, #184218);
+      border-left: 5px solid var(--border-bright, #00ff66);
+      box-shadow: 2px 2px 0px #000;
+      padding: 0.55rem 0.75rem;
       cursor: pointer;
 
       .sync-status-info {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.45rem;
 
         .status-circle {
           width: 8px;
           height: 8px;
-          border-radius: 50%;
-          background: #8e8e93;
+          background: #3e683e;
+          border: 1px solid #000;
 
-          &.synced { background: var(--success, #30d158); }
-          &.syncing { background: var(--warning, #ffd60a); }
-          &.offline { background: #636366; }
+          &.synced { background: var(--success, #00ff66); box-shadow: 0 0 4px #00ff66; }
+          &.syncing { background: var(--warning, #ffd60a); animation: blink 0.5s infinite; }
+          &.offline { background: #3e683e; }
         }
 
         .status-label {
-          font-size: 0.75rem;
-          color: var(--text-secondary, #8e8e93);
+          font-family: var(--font-terminal, monospace);
+          font-size: 1.05rem;
+          color: var(--text-secondary, #74ad74);
         }
       }
 
       .btn-mini-sync {
-        background: none;
-        border: none;
-        color: var(--accent, #ff3b30);
-        font-size: 0.75rem;
-        font-weight: 700;
+        background: #0f2b0f;
+        border: 2px solid var(--border-bright, #00ff66);
+        box-shadow: 2px 2px 0px #000;
+        color: var(--accent, #00ff66);
+        font-family: var(--font-pixel, monospace);
+        font-size: 0.55rem;
+        padding: 0.35rem 0.55rem;
         cursor: pointer;
+
+        &:active {
+          transform: translate(1px, 1px);
+          box-shadow: 1px 1px 0px #000;
+        }
       }
     }
 
     .sync-toast-bar {
-      background: rgba(48, 209, 88, 0.15);
-      border: 1px solid rgba(48, 209, 88, 0.35);
-      color: var(--success, #30d158);
-      font-size: 0.8rem;
-      font-weight: 600;
-      padding: 0.55rem 0.85rem;
-      border-radius: 10px;
+      background: #0f2b0f;
+      border: 2px solid var(--accent, #00ff66);
+      box-shadow: 2px 2px 0px #000;
+      color: var(--accent, #00ff66);
+      font-family: var(--font-terminal, monospace);
+      font-size: 1.15rem;
+      padding: 0.5rem 0.75rem;
       text-align: center;
-      animation: fadeIn 0.2s ease;
     }
 
-    /* ─── Supermarket Store Filter (D1 vs Éxito vs Todos) ─── */
+    /* ─── Supermarket Store Filter ─── */
     .store-filter-bar {
       display: flex;
-      background: var(--bg-tertiary, #2c2c2e);
-      padding: 3px;
-      border-radius: 14px;
+      background: #050d05;
+      border: 2px solid var(--border, #184218);
       gap: 3px;
+      padding: 3px;
 
       .store-tab {
         flex: 1;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 0.35rem;
-        padding: 0.6rem 0.25rem;
-        border: none;
+        padding: 0.5rem 0.25rem;
+        border: 1px solid transparent;
         background: transparent;
-        color: var(--text-secondary, #8e8e93);
-        font-size: 0.8rem;
-        font-weight: 700;
-        border-radius: 11px;
+        color: var(--text-secondary, #74ad74);
+        font-family: var(--font-pixel, monospace);
+        font-size: 0.55rem;
         cursor: pointer;
-        transition: all 0.2s ease;
-        -webkit-tap-highlight-color: transparent;
-
-        .store-dot {
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-
-          &.dot-d1 { background: #ffd60a; }
-          &.dot-exito { background: #ff3b30; }
-        }
+        transition: all 0.15s ease;
 
         &.active {
-          background: var(--bg-secondary, #1c1c1e);
+          background: #0d220d;
+          border-color: var(--border-bright, #00ff66);
           color: #fff;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+          box-shadow: 2px 2px 0px #000;
 
-          &.tab-d1 { color: #ffd60a; }
-          &.tab-exito { color: #ff3b30; }
+          &.tab-d1 { color: #ffd60a; border-color: #ffd60a; }
+          &.tab-exito { color: #ff3b30; border-color: #ff3b30; }
         }
       }
     }
@@ -485,38 +481,40 @@ import type { ShoppingItem, SupermarketStore } from '../../core/models/state.mod
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      background: var(--bg-secondary, #1c1c1e);
-      border: 1px solid var(--border, #38383a);
-      border-radius: var(--input-radius, 12px);
-      padding: 0.6rem 0.85rem;
+      background: #081408;
+      border: 2px solid var(--border-bright, #00ff66);
+      box-shadow: 2px 2px 0px #000;
+      padding: 0.45rem 0.75rem;
 
-      .search-icon { font-size: 0.9rem; opacity: 0.6; }
+      .search-icon { font-size: 1.1rem; }
       .search-input {
         flex: 1;
         background: transparent;
         border: none;
-        color: var(--text-primary, #fff);
-        font-size: 0.9rem;
+        color: var(--text-primary, #e6ffe6);
+        font-family: var(--font-terminal, monospace);
+        font-size: 1.25rem;
         &:focus { outline: none; }
       }
       .btn-clear-search {
         background: none;
         border: none;
-        color: var(--text-secondary, #8e8e93);
-        font-size: 0.85rem;
+        color: var(--text-secondary, #74ad74);
+        font-family: var(--font-pixel, monospace);
+        font-size: 0.75rem;
         cursor: pointer;
       }
     }
 
     /* ─── Add Section ─── */
     .add-section {
-      background: var(--bg-secondary, #1c1c1e);
-      border: 1px solid var(--border, #38383a);
-      border-radius: var(--card-radius, 16px);
-      padding: 0.85rem;
+      background: #081408;
+      border: 2px solid var(--border-bright, #00ff66);
+      box-shadow: 3px 3px 0px #000;
+      padding: 0.75rem;
       display: flex;
       flex-direction: column;
-      gap: 0.75rem;
+      gap: 0.65rem;
 
       .store-selector-row {
         display: flex;
@@ -524,9 +522,9 @@ import type { ShoppingItem, SupermarketStore } from '../../core/models/state.mod
         align-items: center;
 
         .add-label {
-          font-size: 0.75rem;
-          color: var(--text-secondary, #8e8e93);
-          font-weight: 600;
+          font-family: var(--font-pixel, monospace);
+          font-size: 0.6rem;
+          color: var(--text-secondary, #74ad74);
         }
       }
 
@@ -535,30 +533,30 @@ import type { ShoppingItem, SupermarketStore } from '../../core/models/state.mod
         gap: 0.35rem;
 
         .btn-store-pick {
-          background: var(--bg-tertiary, #2c2c2e);
-          border: 1px solid var(--border, #38383a);
-          color: var(--text-secondary, #8e8e93);
-          font-size: 0.75rem;
-          font-weight: 700;
-          padding: 0.35rem 0.6rem;
-          border-radius: 8px;
+          background: #050d05;
+          border: 1px solid var(--border, #184218);
+          color: var(--text-secondary, #74ad74);
+          font-family: var(--font-pixel, monospace);
+          font-size: 0.55rem;
+          padding: 0.3rem 0.5rem;
           cursor: pointer;
 
           &.selected {
+            box-shadow: 2px 2px 0px #000;
             &.d1 {
-              background: rgba(255, 214, 10, 0.2);
+              background: #2a2200;
               border-color: #ffd60a;
               color: #ffd60a;
             }
             &.exito {
-              background: rgba(255, 59, 48, 0.2);
+              background: #2b0806;
               border-color: #ff3b30;
               color: #ff3b30;
             }
             &.otro {
-              background: var(--bg-elevated, #3a3a3c);
-              border-color: #fff;
-              color: #fff;
+              background: #0e240e;
+              border-color: var(--accent, #00ff66);
+              color: var(--accent, #00ff66);
             }
           }
         }
@@ -566,49 +564,53 @@ import type { ShoppingItem, SupermarketStore } from '../../core/models/state.mod
 
       .add-inputs-row {
         display: flex;
-        gap: 0.5rem;
+        gap: 0.4rem;
       }
 
       .input-name {
         flex: 2;
-        background: var(--bg-tertiary, #2c2c2e);
-        border: 1px solid var(--border, #38383a);
-        border-radius: 8px;
-        padding: 0.6rem 0.75rem;
+        background: #040804;
+        border: 2px solid var(--border, #184218);
+        padding: 0.45rem 0.65rem;
         color: #fff;
-        font-size: 0.9rem;
-        &:focus { outline: none; border-color: var(--accent, #ff3b30); }
+        font-family: var(--font-terminal, monospace);
+        font-size: 1.25rem;
+        &:focus { outline: none; border-color: var(--accent, #00ff66); }
       }
 
       .input-qty {
-        width: 70px;
-        background: var(--bg-tertiary, #2c2c2e);
-        border: 1px solid var(--border, #38383a);
-        border-radius: 8px;
-        padding: 0.6rem 0.5rem;
+        width: 75px;
+        background: #040804;
+        border: 2px solid var(--border, #184218);
+        padding: 0.45rem 0.45rem;
         color: #fff;
-        font-size: 0.9rem;
+        font-family: var(--font-terminal, monospace);
+        font-size: 1.25rem;
         text-align: center;
-        &:focus { outline: none; border-color: var(--accent, #ff3b30); }
+        &:focus { outline: none; border-color: var(--accent, #00ff66); }
       }
 
       .btn-add-primary {
-        background: var(--accent, #ff3b30);
-        color: #fff;
-        border: none;
-        padding: 0.6rem 0.85rem;
-        border-radius: 8px;
-        font-weight: 700;
-        font-size: 0.85rem;
+        background: #0f2b0f;
+        border: 2px solid var(--border-bright, #00ff66);
+        box-shadow: 2px 2px 0px #000;
+        color: var(--accent, #00ff66);
+        font-family: var(--font-pixel, monospace);
+        font-size: 0.65rem;
+        padding: 0.45rem 0.75rem;
         cursor: pointer;
         white-space: nowrap;
-        &:active { opacity: 0.8; }
+
+        &:active {
+          transform: translate(1px, 1px);
+          box-shadow: 1px 1px 0px #000;
+        }
       }
     }
 
     .category-chips {
       display: flex;
-      gap: 0.4rem;
+      gap: 0.35rem;
       overflow-x: auto;
       padding-bottom: 0.2rem;
       -webkit-overflow-scrolling: touch;
@@ -616,19 +618,18 @@ import type { ShoppingItem, SupermarketStore } from '../../core/models/state.mod
 
       .cat-chip {
         flex: 0 0 auto;
-        background: var(--bg-tertiary, #2c2c2e);
-        border: 1px solid var(--border, #38383a);
-        color: var(--text-secondary, #8e8e93);
-        font-size: 0.75rem;
-        padding: 0.35rem 0.6rem;
-        border-radius: 14px;
+        background: #050d05;
+        border: 1px solid var(--border, #184218);
+        color: var(--text-secondary, #74ad74);
+        font-family: var(--font-terminal, monospace);
+        font-size: 1rem;
+        padding: 0.2rem 0.5rem;
         cursor: pointer;
 
         &.selected {
-          background: rgba(255, 59, 48, 0.2);
-          border-color: var(--accent, #ff3b30);
+          border-color: var(--accent, #00ff66);
           color: #fff;
-          font-weight: 600;
+          background: #0d220d;
         }
       }
     }
@@ -637,7 +638,7 @@ import type { ShoppingItem, SupermarketStore } from '../../core/models/state.mod
     .store-sections-list {
       display: flex;
       flex-direction: column;
-      gap: 1.25rem;
+      gap: 1rem;
     }
 
     .store-group-card {
@@ -645,56 +646,57 @@ import type { ShoppingItem, SupermarketStore } from '../../core/models/state.mod
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 0.6rem;
+        margin-bottom: 0.45rem;
 
         .store-title-badge {
           display: flex;
           align-items: center;
           gap: 0.35rem;
-          font-size: 0.95rem;
+          font-family: var(--font-pixel, monospace);
+          font-size: 0.75rem;
 
           &.d1-badge { color: #ffd60a; }
           &.exito-badge { color: #ff3b30; }
         }
 
         .store-items-count {
-          font-size: 0.75rem;
-          color: var(--text-secondary, #8e8e93);
+          font-family: var(--font-pixel, monospace);
+          font-size: 0.55rem;
+          color: var(--text-secondary, #74ad74);
         }
       }
 
       .items-list {
         display: flex;
         flex-direction: column;
-        gap: 0.5rem;
+        gap: 0.4rem;
       }
     }
 
     .shopping-row {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
-      min-height: 54px;
-      padding: 0.65rem 0.85rem;
-      background: var(--bg-secondary, #1c1c1e);
-      border: 1px solid var(--border, #38383a);
-      border-radius: var(--input-radius, 12px);
+      gap: 0.65rem;
+      min-height: 48px;
+      padding: 0.5rem 0.75rem;
+      background: #081408;
+      border: 2px solid var(--border, #184218);
+      box-shadow: 2px 2px 0px #000;
       cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
       user-select: none;
       transition: all 0.15s ease;
 
       &:active {
-        background: var(--bg-tertiary, #2c2c2e);
+        background: #0d220d;
       }
 
       &.checked {
         opacity: 0.45;
-        background: transparent;
+        background: #040804;
 
-        .checkbox-circle {
-          background: var(--success, #30d158);
-          border-color: var(--success, #30d158);
+        .pixel-checkbox {
+          background: var(--accent, #00ff66);
+          border-color: var(--accent, #00ff66);
           color: #000;
         }
 
@@ -703,16 +705,17 @@ import type { ShoppingItem, SupermarketStore } from '../../core/models/state.mod
         }
       }
 
-      .checkbox-circle {
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        border: 2px solid var(--border, #555);
+      .pixel-checkbox {
+        width: 22px;
+        height: 22px;
+        border: 2px solid var(--border-bright, #00ff66);
+        background: #040804;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.85rem;
-        font-weight: 800;
+        font-family: var(--font-pixel, monospace);
+        font-size: 0.65rem;
+        font-weight: 700;
         flex-shrink: 0;
       }
 
@@ -726,26 +729,27 @@ import type { ShoppingItem, SupermarketStore } from '../../core/models/state.mod
         .item-name-row {
           display: flex;
           align-items: center;
-          gap: 0.4rem;
+          gap: 0.35rem;
           overflow: hidden;
         }
 
         .item-name {
-          font-size: 0.95rem;
-          font-weight: 500;
+          font-family: var(--font-terminal, monospace);
+          font-size: 1.25rem;
+          color: #fff;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
         }
 
         .cat-pill-mini {
-          font-size: 0.8rem;
+          font-size: 1rem;
         }
 
         .item-qty {
-          font-size: 0.85rem;
-          color: var(--accent, #ff3b30);
-          font-weight: 700;
+          font-family: var(--font-pixel, monospace);
+          font-size: 0.6rem;
+          color: #ffd60a;
           margin-left: 0.5rem;
           flex-shrink: 0;
         }
@@ -754,21 +758,19 @@ import type { ShoppingItem, SupermarketStore } from '../../core/models/state.mod
       .row-actions {
         display: flex;
         align-items: center;
-        gap: 0.25rem;
+        gap: 0.2rem;
         flex-shrink: 0;
 
         .btn-icon-action {
-          background: none;
-          border: none;
-          font-size: 0.95rem;
-          padding: 0.4rem;
-          border-radius: 8px;
+          background: #050d05;
+          border: 1px solid var(--border, #184218);
+          font-size: 0.9rem;
+          padding: 0.25rem;
           cursor: pointer;
-          -webkit-tap-highlight-color: transparent;
 
           &:active {
             transform: scale(0.9);
-            background: var(--bg-tertiary, #2c2c2e);
+            background: #0d220d;
           }
         }
       }
@@ -778,9 +780,7 @@ import type { ShoppingItem, SupermarketStore } from '../../core/models/state.mod
     .edit-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      background: rgba(0, 0, 0, 0.85);
       z-index: 1000;
       display: flex;
       align-items: flex-end;
@@ -788,33 +788,25 @@ import type { ShoppingItem, SupermarketStore } from '../../core/models/state.mod
     }
 
     .edit-sheet {
-      background: var(--bg-secondary, #1c1c1e);
+      background: #081408;
       width: 100%;
       max-width: 500px;
-      border-radius: 20px 20px 0 0;
+      border-top: 3px solid var(--border-bright, #00ff66);
+      box-shadow: 0 -4px 0px #000;
       padding: 1rem 1.25rem calc(1.5rem + env(safe-area-inset-bottom)) 1.25rem;
-      border-top: 1px solid var(--border, #38383a);
-      animation: slideUp 0.25s cubic-bezier(0.1, 0.9, 0.2, 1);
-
-      .sheet-handle {
-        width: 36px;
-        height: 4px;
-        background: #555;
-        border-radius: 2px;
-        margin: 0 auto 0.75rem auto;
-      }
 
       .sheet-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 1rem;
-        h3 { font-size: 1.15rem; margin: 0; }
+        margin-bottom: 0.85rem;
+        h3 { font-size: 0.85rem; margin: 0; }
         .btn-close-sheet {
           background: none;
           border: none;
-          color: var(--text-secondary, #8e8e93);
-          font-size: 1.1rem;
+          color: var(--text-secondary, #74ad74);
+          font-family: var(--font-pixel, monospace);
+          font-size: 0.9rem;
           cursor: pointer;
         }
       }
@@ -822,78 +814,76 @@ import type { ShoppingItem, SupermarketStore } from '../../core/models/state.mod
       .edit-form {
         display: flex;
         flex-direction: column;
-        gap: 0.75rem;
+        gap: 0.65rem;
 
         label {
-          font-size: 0.75rem;
-          color: var(--text-secondary, #8e8e93);
-          font-weight: 600;
-          text-transform: uppercase;
+          font-family: var(--font-pixel, monospace);
+          font-size: 0.55rem;
+          color: var(--text-secondary, #74ad74);
           margin-top: 0.25rem;
         }
 
         .sheet-input {
-          background: var(--bg-tertiary, #2c2c2e);
-          border: 1px solid var(--border, #38383a);
-          border-radius: 10px;
+          background: #040804;
+          border: 2px solid var(--border, #184218);
           color: #fff;
-          padding: 0.75rem;
-          font-size: 0.95rem;
-          &:focus { outline: none; border-color: var(--accent, #ff3b30); }
+          padding: 0.55rem;
+          font-family: var(--font-terminal, monospace);
+          font-size: 1.25rem;
+          &:focus { outline: none; border-color: var(--accent, #00ff66); }
         }
 
         .sheet-actions {
           display: flex;
-          gap: 0.75rem;
-          margin-top: 1rem;
+          gap: 0.65rem;
+          margin-top: 0.75rem;
 
           .btn-delete-confirm {
             flex: 1;
-            background: rgba(255, 59, 48, 0.15);
-            border: 1px solid rgba(255, 59, 48, 0.3);
+            background: #2b0806;
+            border: 2px solid #ff3b30;
             color: #ff3b30;
-            padding: 0.85rem;
-            border-radius: 12px;
-            font-size: 0.85rem;
-            font-weight: 700;
+            padding: 0.65rem;
+            font-family: var(--font-pixel, monospace);
+            font-size: 0.65rem;
             cursor: pointer;
           }
 
           .btn-save-confirm {
-            flex: 2;
-            background: var(--accent, #ff3b30);
-            border: none;
-            color: #fff;
-            padding: 0.85rem;
-            border-radius: 12px;
-            font-size: 0.95rem;
-            font-weight: 700;
+            flex: 1;
+            background: #0f2b0f;
+            border: 2px solid var(--border-bright, #00ff66);
+            color: var(--accent, #00ff66);
+            padding: 0.65rem;
+            font-family: var(--font-pixel, monospace);
+            font-size: 0.65rem;
             cursor: pointer;
           }
         }
       }
     }
 
-    @keyframes slideUp {
-      from { transform: translateY(100%); }
-      to { transform: translateY(0); }
-    }
-
     .empty-state {
       text-align: center;
-      padding: 2.5rem 1rem;
-      background: var(--bg-secondary, #1c1c1e);
-      border-radius: var(--card-radius, 16px);
-      border: 1px dashed var(--border, #38383a);
+      padding: 2rem 1rem;
+      background: #081408;
+      border: 2px solid var(--border, #184218);
+      box-shadow: 2px 2px 0px #000;
 
       .empty-rotom-img {
-        width: 80px;
-        height: 80px;
-        object-fit: contain;
+        width: 64px;
+        height: 64px;
         margin-bottom: 0.75rem;
+        image-rendering: pixelated;
       }
-      h3 { font-size: 1.15rem; margin: 0 0 0.5rem; }
-      p { font-size: 0.85rem; color: var(--text-secondary, #8e8e93); margin: 0; }
+
+      h3 { font-size: 0.85rem; margin-bottom: 0.35rem; }
+      p { font-family: var(--font-terminal, monospace); font-size: 1.15rem; color: var(--text-secondary, #74ad74); margin: 0; }
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.2; }
     }
   `],
 })
@@ -901,25 +891,25 @@ export class ShoppingComponent {
   readonly storage = inject(StorageService);
   readonly sync = inject(SyncService);
 
-  activeStoreFilter = signal<'all' | 'D1' | 'Éxito'>('all');
+  activeStoreFilter = signal<SupermarketStore | 'all'>('all');
   searchQuery = '';
 
   newItemName = '';
   newItemQty = '';
   newItemStore: SupermarketStore = 'D1';
-  newItemCategory = 'vegetal';
+  newItemCategory = 'otro';
 
   editingItem = signal<ShoppingItem | null>(null);
   editName = '';
   editQty = '';
   editStore: SupermarketStore = 'D1';
-  editCategory = 'vegetal';
+  editCategory = 'otro';
 
   readonly availableCategories = [
     { id: 'vegetal', name: 'Vegetales', emoji: '🥦' },
-    { id: 'proteína', name: 'Carnes / Prot', emoji: '🥩' },
+    { id: 'proteína', name: 'Carnes', emoji: '🥩' },
     { id: 'lácteo', name: 'Lácteos', emoji: '🧀' },
-    { id: 'grano', name: 'Granos / Harina', emoji: '🌾' },
+    { id: 'grano', name: 'Granos', emoji: '🌾' },
     { id: 'condimento', name: 'Condimentos', emoji: '🧂' },
     { id: 'líquido', name: 'Líquidos', emoji: '💧' },
     { id: 'otro', name: 'Otros', emoji: '📦' },
@@ -928,8 +918,8 @@ export class ShoppingComponent {
   activeStoreLabel = computed(() => {
     switch (this.activeStoreFilter()) {
       case 'D1': return 'D1';
-      case 'Éxito': return 'Éxito';
-      default: return 'Todas las tiendas';
+      case 'Éxito': return 'ÉXITO';
+      default: return 'TODAS';
     }
   });
 
@@ -964,7 +954,6 @@ export class ShoppingComponent {
       return [{ storeName: 'Éxito' as SupermarketStore, items }];
     }
 
-    // Modo 'all': agrupar por D1, Éxito y Otros
     return [
       { storeName: 'D1' as SupermarketStore, items: items.filter((i) => i.store === 'D1') },
       { storeName: 'Éxito' as SupermarketStore, items: items.filter((i) => i.store === 'Éxito') },
@@ -987,14 +976,10 @@ export class ShoppingComponent {
 
     this.newItemName = '';
     this.newItemQty = '';
-
-    // Auto-sync a la nube en segundo plano si hay red
-    this.sync.pushToCloud();
   }
 
   async toggleItem(id: number): Promise<void> {
     await this.storage.toggleShoppingItem(id);
-    this.sync.pushToCloud();
   }
 
   startEdit(item: ShoppingItem): void {
@@ -1021,13 +1006,11 @@ export class ShoppingComponent {
     });
 
     this.closeEdit();
-    this.sync.pushToCloud();
   }
 
   async deleteItem(id: number): Promise<void> {
     await this.storage.removeShoppingItem(id);
     this.closeEdit();
-    this.sync.pushToCloud();
   }
 
   async triggerSync(): Promise<void> {

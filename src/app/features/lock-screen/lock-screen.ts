@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LocalLockService } from '../../core/services/local-lock.service';
@@ -9,39 +9,39 @@ import { LocalLockService } from '../../core/services/local-lock.service';
   imports: [FormsModule],
   template: `
     <div class="lock-container">
-      <div class="lock-card">
+      <div class="pixel-lock-card">
         <div class="logo">
-          <img src="assets/images/rotom/rotom-default.webp" alt="Rotom" class="lock-rotom" />
+          <img src="assets/images/rotom/rotom-sprite.webp" alt="Rotom" class="lock-rotom" />
         </div>
-        <h1>Rotom</h1>
-        <p class="subtitle">Tu asistente personal</p>
+        <h1>ROTOM</h1>
+        <p class="subtitle">SISTEMA PRIVADO LOCAL</p>
 
         @if (!lockService.isSetup()) {
           <!-- First-time Setup -->
           <div class="setup-section">
-            <p class="info">Configura tu PIN de acceso</p>
+            <p class="info">CONFIGURA TU PIN DE ACCESO</p>
             <input
               type="password"
               inputmode="numeric"
               pattern="[0-9]*"
               [(ngModel)]="pinInput"
-              placeholder="Crear PIN (mín. 4 dígitos)"
-              class="pin-input"
+              placeholder="NUEVO PIN"
+              class="pixel-pin-input"
               (keyup.enter)="setupPin()"
             />
-            <button class="btn-primary" (click)="setupPin()">
-              Crear PIN
+            <button class="pixel-btn-primary" (click)="setupPin()">
+              GUARDAR PIN
             </button>
           </div>
         } @else {
           <!-- Unlock -->
           @if (lockService.hasBiometric()) {
-            <button class="btn-biometric" (click)="unlockBiometric()">
+            <button class="pixel-btn-biometric" (click)="unlockBiometric()">
               <span class="icon">👤</span>
-              Desbloquear con Face ID
+              FACE ID / TOUCH ID
             </button>
             <div class="divider">
-              <span>o usa tu PIN</span>
+              <span>O INGRESA TU PIN</span>
             </div>
           }
 
@@ -50,12 +50,12 @@ import { LocalLockService } from '../../core/services/local-lock.service';
             inputmode="numeric"
             pattern="[0-9]*"
             [(ngModel)]="pinInput"
-            placeholder="Ingresa tu PIN"
-            class="pin-input"
+            placeholder="PIN"
+            class="pixel-pin-input"
             (keyup.enter)="unlockPin()"
           />
-          <button class="btn-primary" (click)="unlockPin()">
-            Desbloquear
+          <button class="pixel-btn-primary" (click)="unlockPin()">
+            DESBLOQUEAR ▶
           </button>
         }
 
@@ -73,153 +73,151 @@ import { LocalLockService } from '../../core/services/local-lock.service';
       min-height: 100dvh;
       padding: env(safe-area-inset-top) env(safe-area-inset-right)
         env(safe-area-inset-bottom) env(safe-area-inset-left);
-      background: var(--bg-primary, #000);
-      color: var(--text-primary, #fff);
+      background: #040804;
+      color: var(--text-primary, #e6ffe6);
     }
 
-    .lock-card {
+    .pixel-lock-card {
       text-align: center;
-      padding: 2rem;
+      padding: 1.5rem;
       max-width: 320px;
       width: 100%;
+      background: #081408;
+      border: 3px solid var(--border-bright, #00ff66);
+      box-shadow: 4px 4px 0px #000;
     }
 
     .logo {
       display: flex;
       justify-content: center;
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.5rem;
 
       .lock-rotom {
-        width: 100px;
-        height: 100px;
+        width: 72px;
+        height: 72px;
         object-fit: contain;
-        animation: rotomFloatLock 3s ease-in-out infinite alternate;
-        filter: drop-shadow(0 0 16px rgba(255, 107, 53, 0.5));
+        image-rendering: pixelated;
+        filter: drop-shadow(0 0 10px rgba(0, 255, 102, 0.6));
+        animation: pixelBounce 2s steps(2) infinite alternate;
       }
     }
 
-    @keyframes rotomFloatLock {
-      0% {
-        transform: translateY(0px) scale(1);
-      }
-      50% {
-        transform: translateY(-8px) scale(1.02);
-      }
-      100% {
-        transform: translateY(-14px) scale(1.05);
-      }
+    @keyframes pixelBounce {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-6px); }
     }
 
     h1 {
-      font-size: 1.75rem;
-      font-weight: 700;
+      font-size: 1.3rem;
       margin: 0;
-      letter-spacing: -0.5px;
+      color: var(--accent, #00ff66);
+      text-shadow: 0 0 8px rgba(0, 255, 102, 0.6);
     }
 
     .subtitle {
-      color: var(--text-secondary, #888);
-      margin: 0.25rem 0 2rem;
-      font-size: 0.9rem;
+      font-family: var(--font-terminal, monospace);
+      color: var(--text-secondary, #74ad74);
+      margin: 0.25rem 0 1.25rem;
+      font-size: 1.15rem;
     }
 
     .info {
-      color: var(--text-secondary, #888);
-      margin-bottom: 1rem;
-      font-size: 0.85rem;
+      font-family: var(--font-pixel, monospace);
+      color: var(--accent, #00ff66);
+      margin-bottom: 0.75rem;
+      font-size: 0.55rem;
     }
 
-    .pin-input {
+    .pixel-pin-input {
       display: block;
       width: 100%;
-      padding: 0.875rem 1rem;
-      border: 1px solid var(--border, #333);
-      border-radius: 12px;
-      background: var(--bg-secondary, #1a1a1a);
-      color: var(--text-primary, #fff);
-      font-size: 1.25rem;
+      padding: 0.65rem 0.75rem;
+      border: 2px solid var(--border-bright, #00ff66);
+      background: #040804;
+      color: var(--accent, #00ff66);
+      font-family: var(--font-terminal, monospace);
+      font-size: 1.6rem;
       text-align: center;
-      letter-spacing: 0.5rem;
-      margin-bottom: 1rem;
+      letter-spacing: 0.4rem;
+      margin-bottom: 0.85rem;
       -webkit-appearance: none;
 
       &:focus {
         outline: none;
-        border-color: var(--accent, #ff3b30);
+        box-shadow: 0 0 8px rgba(0, 255, 102, 0.5);
       }
     }
 
-    .btn-primary {
+    .pixel-btn-primary {
       display: block;
       width: 100%;
-      padding: 0.875rem;
-      border: none;
-      border-radius: 12px;
-      background: var(--accent, #ff3b30);
-      color: #fff;
-      font-size: 1rem;
-      font-weight: 600;
+      padding: 0.65rem;
+      border: 2px solid var(--border-bright, #00ff66);
+      background: #0f2b0f;
+      color: var(--accent, #00ff66);
+      font-family: var(--font-pixel, monospace);
+      font-size: 0.65rem;
       cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
+      box-shadow: 2px 2px 0px #000;
 
       &:active {
-        opacity: 0.8;
-        transform: scale(0.98);
+        transform: translate(1px, 1px);
+        box-shadow: 1px 1px 0px #000;
       }
     }
 
-    .btn-biometric {
+    .pixel-btn-biometric {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 0.5rem;
+      gap: 0.4rem;
       width: 100%;
-      padding: 0.875rem;
-      border: 1px solid var(--border, #333);
-      border-radius: 12px;
-      background: var(--bg-secondary, #1a1a1a);
-      color: var(--text-primary, #fff);
-      font-size: 1rem;
-      font-weight: 500;
+      padding: 0.6rem;
+      border: 2px solid var(--border, #184218);
+      background: #040804;
+      color: var(--text-primary, #e6ffe6);
+      font-family: var(--font-pixel, monospace);
+      font-size: 0.55rem;
       cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
+      box-shadow: 2px 2px 0px #000;
 
-      .icon { font-size: 1.25rem; }
+      .icon { font-size: 1rem; }
 
       &:active {
-        opacity: 0.8;
-        background: var(--bg-tertiary, #2a2a2a);
+        background: #0f2b0f;
+        transform: translate(1px, 1px);
       }
     }
 
     .divider {
       display: flex;
       align-items: center;
-      margin: 1.25rem 0;
-      color: var(--text-secondary, #888);
-      font-size: 0.8rem;
+      margin: 1rem 0;
+      color: var(--text-secondary, #74ad74);
+      font-family: var(--font-pixel, monospace);
+      font-size: 0.5rem;
 
       &::before,
       &::after {
         content: '';
         flex: 1;
         height: 1px;
-        background: var(--border, #333);
+        background: var(--border, #184218);
       }
 
-      span { padding: 0 0.75rem; }
+      span { padding: 0 0.5rem; }
     }
 
     .error {
-      color: #ff453a;
-      font-size: 0.85rem;
-      margin-top: 1rem;
+      font-family: var(--font-terminal, monospace);
+      color: #ff3b30;
+      font-size: 1.15rem;
+      margin-top: 0.75rem;
     }
 
     .setup-section {
       display: flex;
       flex-direction: column;
-      gap: 0.25rem;
     }
   `],
 })

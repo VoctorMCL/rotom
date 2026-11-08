@@ -13,29 +13,34 @@ import { SyncService } from '../../core/services/sync.service';
   template: `
     <div class="settings-container">
       <header class="page-header">
-        <h2>Ajustes</h2>
-        <p class="subtitle">Sincronización, persistencia Safari y seguridad</p>
+        <div class="title-with-sprite">
+          <img src="assets/images/rotom/rotom-sprite.webp" alt="Rotom" class="header-sprite" />
+          <div class="header-text">
+            <h2>CONFIGURACIÓN</h2>
+            <p class="subtitle">Sincronización, persistencia Safari y seguridad</p>
+          </div>
+        </div>
       </header>
 
       <!-- Section: PC ↔ Celular Sync -->
       <section class="settings-card sync-card">
         <div class="card-title">
-          <span class="icon">🔄</span>
+          <span class="icon">🔌</span>
           <div>
-            <h3>Sincronización PC ↔ Celular</h3>
-            <p>Escribe tu lista de compras en el PC y llévala en tu iPhone 100% offline.</p>
+            <h3>LINK CABLE (PC ↔ CELULAR)</h3>
+            <p>Escribe tu lista en el PC y llévala en tu iPhone 100% offline.</p>
           </div>
         </div>
 
         <div class="setting-row">
-          <span>Estado de conexión:</span>
+          <span class="row-label">ESTADO DE CONEXIÓN:</span>
           <span class="status-tag" [class.active]="sync.syncState() === 'synced'">
-            {{ sync.statusMessage() }}
+            {{ sync.statusMessage() | uppercase }}
           </span>
         </div>
 
         <div class="sync-key-box">
-          <label>Clave de sincronización privada</label>
+          <label>CLAVE DE SINCRONIZACIÓN PRIVADA</label>
           <div class="key-input-row">
             <input
               type="text"
@@ -44,15 +49,15 @@ import { SyncService } from '../../core/services/sync.service';
               class="sync-input"
             />
             <button class="btn-save-key" (click)="saveSyncKey()">
-              Guardar
+              GUARDAR
             </button>
           </div>
           <p class="key-help">Usa exactamente la misma clave en tu PC y en tu celular.</p>
         </div>
 
         <div class="sync-actions-row">
-          <button class="btn-action" (click)="triggerSync()" [disabled]="sync.syncState() === 'syncing'">
-            {{ sync.syncState() === 'syncing' ? 'Bajando cambios...' : 'Bajar cambios del PC ⬇️' }}
+          <button class="btn-action btn-sync" (click)="triggerSync()" [disabled]="sync.syncState() === 'syncing'">
+            {{ sync.syncState() === 'syncing' ? 'BAJANDO CAMBIOS...' : '⬇️ BAJAR CAMBIOS DEL PC' }}
           </button>
         </div>
       </section>
@@ -62,20 +67,20 @@ import { SyncService } from '../../core/services/sync.service';
         <div class="card-title">
           <span class="icon">🛡️</span>
           <div>
-            <h3>Memoria Persistente Safari iOS</h3>
-            <p>Por políticas de Apple, Safari solo concede persistencia física permanente cuando la app se instala como PWA en la pantalla de inicio.</p>
+            <h3>MEMORIA FLASH SAFARI (iOS)</h3>
+            <p>Apple concede persistencia física permanente cuando instalas Rotom como PWA en tu pantalla de inicio.</p>
           </div>
         </div>
 
         <div class="setting-row">
-          <span>Modo Pantalla de Inicio (PWA):</span>
+          <span class="row-label">MODO PANTALLA INICIO:</span>
           <span class="status-tag" [class.active]="storage.isStandalone()">
-            {{ storage.isStandalone() ? 'INSTALADA (PWA) ✓' : 'EN NAVEGADOR WEB' }}
+            {{ storage.isStandalone() ? 'INSTALADA (PWA) ✓' : 'EN NAVEGADOR' }}
           </span>
         </div>
 
         <div class="setting-row">
-          <span>Persistencia en disco flash:</span>
+          <span class="row-label">PERSISTENCIA FLASH:</span>
           <span class="status-tag" [class.active]="storage.isPersistent()">
             {{ storage.isPersistent() ? 'PROTEGIDO ✓' : 'PENDIENTE' }}
           </span>
@@ -83,10 +88,10 @@ import { SyncService } from '../../core/services/sync.service';
 
         @if (!storage.isStandalone()) {
           <div class="safari-steps">
-            <strong>Cómo blindar tus datos en iPhone:</strong>
+            <strong>CÓMO BLINDAR EN TU IPHONE:</strong>
             <ol>
               <li>Abre <code>rotom.victormcl.me</code> en Safari.</li>
-              <li>Toca el botón <strong>Compartir</strong> (icono de cuadrado con flecha hacia arriba ⬆️).</li>
+              <li>Toca el botón <strong>Compartir</strong> (icono ⬆️).</li>
               <li>Selecciona <strong>"Añadir a pantalla de inicio"</strong>.</li>
               <li>Abre Rotom desde el icono creado. WebKit aislará y blindará la memoria contra purgas automáticas.</li>
             </ol>
@@ -94,7 +99,7 @@ import { SyncService } from '../../core/services/sync.service';
         }
 
         <button class="btn-action btn-secondary" (click)="requestPersistence()">
-          Solicitar Persistencia a Safari
+          SOLICITAR PERSISTENCIA A SAFARI
         </button>
       </section>
 
@@ -103,24 +108,26 @@ import { SyncService } from '../../core/services/sync.service';
         <div class="card-title">
           <span class="icon">💾</span>
           <div>
-            <h3>Copia de Seguridad Local</h3>
+            <h3>CARTUCHO / BACKUP LOCAL</h3>
             <p>Exporta o importa toda tu base de datos como archivo JSON directo a "Archivos" de iOS.</p>
           </div>
         </div>
 
         <div class="backup-actions">
           <button class="btn-action" (click)="exportBackup()">
-            📥 Exportar Backup (.json)
+            📥 EXPORTAR BACKUP (.JSON)
           </button>
 
           <label class="btn-action btn-secondary file-label">
-            📤 Importar Backup (.json)
+            📤 IMPORTAR BACKUP (.JSON)
             <input type="file" accept=".json" (change)="importBackup($event)" hidden />
           </label>
         </div>
 
         @if (backupMsg()) {
-          <p class="alert-msg">{{ backupMsg() }}</p>
+          <div class="alert-box">
+            <span class="alert-msg">{{ backupMsg() }}</span>
+          </div>
         }
       </section>
 
@@ -129,31 +136,31 @@ import { SyncService } from '../../core/services/sync.service';
         <div class="card-title">
           <span class="icon">🔒</span>
           <div>
-            <h3>Seguridad Local (Sin Internet)</h3>
-            <p>Face ID / Touch ID vía WebAuthn y PIN con hash SHA-256.</p>
+            <h3>SEGURIDAD LOCAL (SIN INTERNET)</h3>
+            <p>Face ID / Touch ID vía WebAuthn y PIN con hash SHA-256 local.</p>
           </div>
         </div>
 
         <div class="setting-row">
-          <span>Biometría (Face ID):</span>
+          <span class="row-label">BIOMETRÍA (FACE ID):</span>
           <span class="status-tag" [class.active]="lockService.hasBiometric()">
-            {{ lockService.hasBiometric() ? 'CONFIGURADO ✓' : 'NO DISPONIBLE' }}
+            {{ lockService.hasBiometric() ? 'ACTIVO ✓' : 'NO DISPONIBLE' }}
           </span>
         </div>
 
         <div class="security-actions">
-          <button class="btn-action" (click)="setupBiometric()">
-            👤 Configurar / Probar Face ID
+          <button class="btn-action btn-secondary" (click)="setupBiometric()">
+            👤 CONFIGURAR / PROBAR FACE ID
           </button>
 
           <div class="pin-change-box">
-            <h4>Cambiar PIN</h4>
+            <h4>CAMBIAR PIN</h4>
             <input
               type="password"
               inputmode="numeric"
               pattern="[0-9]*"
               [(ngModel)]="currentPin"
-              placeholder="PIN actual"
+              placeholder="PIN ACTUAL"
               class="pin-input"
             />
             <input
@@ -161,21 +168,23 @@ import { SyncService } from '../../core/services/sync.service';
               inputmode="numeric"
               pattern="[0-9]*"
               [(ngModel)]="newPin"
-              placeholder="Nuevo PIN (mín. 4 dígitos)"
+              placeholder="NUEVO PIN (MÍN. 4 DÍGITOS)"
               class="pin-input"
             />
             <button class="btn-action btn-secondary" (click)="changePin()">
-              Actualizar PIN
+              ACTUALIZAR PIN
             </button>
           </div>
 
           <button class="btn-danger" (click)="lockNow()">
-            🔒 Bloquear Rotom Ahora
+            🔒 BLOQUEAR ROTOM AHORA
           </button>
         </div>
 
         @if (secMsg()) {
-          <p class="alert-msg">{{ secMsg() }}</p>
+          <div class="alert-box">
+            <span class="alert-msg">{{ secMsg() }}</span>
+          </div>
         }
       </section>
     </div>
@@ -184,35 +193,71 @@ import { SyncService } from '../../core/services/sync.service';
     .settings-container {
       display: flex;
       flex-direction: column;
-      gap: 1.25rem;
+      gap: 1rem;
     }
 
     .page-header {
-      h2 { font-size: 1.7rem; font-weight: 800; margin: 0; }
-      .subtitle { color: var(--text-secondary, #8e8e93); font-size: 0.85rem; margin-top: 0.25rem; }
+      .title-with-sprite {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+
+        .header-sprite {
+          width: 32px;
+          height: 32px;
+          image-rendering: pixelated;
+        }
+
+        h2 {
+          font-family: var(--font-pixel, monospace);
+          font-size: 0.95rem;
+          color: var(--accent, #00ff66);
+          margin: 0;
+          letter-spacing: 0.05em;
+        }
+
+        .subtitle {
+          font-family: var(--font-terminal, monospace);
+          color: var(--text-secondary, #74ad74);
+          font-size: 1.15rem;
+          margin: 0.2rem 0 0;
+        }
+      }
     }
 
     .settings-card {
-      background: var(--bg-secondary, #1c1c1e);
-      border: 1px solid var(--border, #38383a);
-      border-radius: var(--card-radius, 16px);
-      padding: 1.25rem;
+      background: #081408;
+      border: 2px solid var(--border, #184218);
+      box-shadow: 3px 3px 0px #000;
+      padding: 1rem;
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      gap: 0.85rem;
 
       .card-title {
         display: flex;
-        gap: 0.75rem;
+        gap: 0.65rem;
         align-items: flex-start;
 
-        .icon { font-size: 1.4rem; }
-        h3 { font-size: 1.05rem; margin: 0 0 0.25rem; }
-        p { font-size: 0.8rem; color: var(--text-secondary, #8e8e93); margin: 0; line-height: 1.4; }
+        .icon { font-size: 1.3rem; }
+        h3 {
+          font-family: var(--font-pixel, monospace);
+          font-size: 0.75rem;
+          color: var(--accent, #00ff66);
+          margin: 0 0 0.25rem;
+          letter-spacing: 0.03em;
+        }
+        p {
+          font-family: var(--font-terminal, monospace);
+          font-size: 1.1rem;
+          color: var(--text-secondary, #74ad74);
+          margin: 0;
+          line-height: 1.3;
+        }
       }
 
       &.sync-card {
-        border-color: rgba(48, 209, 88, 0.3);
+        border-color: var(--border-bright, #00ff66);
       }
     }
 
@@ -221,35 +266,42 @@ import { SyncService } from '../../core/services/sync.service';
       justify-content: space-between;
       align-items: center;
       padding: 0.4rem 0;
-      font-size: 0.85rem;
+      border-bottom: 1px dashed #184218;
+
+      .row-label {
+        font-family: var(--font-pixel, monospace);
+        font-size: 0.55rem;
+        color: var(--text-secondary, #74ad74);
+      }
     }
 
     .status-tag {
-      font-size: 0.7rem;
+      font-family: var(--font-pixel, monospace);
+      font-size: 0.55rem;
       font-weight: 700;
-      padding: 0.2rem 0.5rem;
-      border-radius: 8px;
+      padding: 0.2rem 0.45rem;
+      border: 1px solid currentColor;
       background: rgba(255, 59, 48, 0.15);
-      color: var(--accent, #ff3b30);
+      color: #ff3b30;
 
       &.active {
-        background: rgba(48, 209, 88, 0.15);
-        color: var(--success, #30d158);
+        background: rgba(0, 255, 102, 0.15);
+        color: var(--accent, #00ff66);
       }
     }
 
     .sync-key-box {
-      background: var(--bg-tertiary, #2c2c2e);
-      border-radius: 12px;
-      padding: 0.85rem;
+      background: #030603;
+      border: 2px solid var(--border, #184218);
+      padding: 0.75rem;
       display: flex;
       flex-direction: column;
       gap: 0.4rem;
 
       label {
-        font-size: 0.75rem;
-        color: var(--text-secondary, #8e8e93);
-        font-weight: 600;
+        font-family: var(--font-pixel, monospace);
+        font-size: 0.55rem;
+        color: var(--accent, #00ff66);
       }
 
       .key-input-row {
@@ -259,78 +311,121 @@ import { SyncService } from '../../core/services/sync.service';
 
       .sync-input {
         flex: 1;
-        background: var(--bg-secondary, #1c1c1e);
-        border: 1px solid var(--border, #38383a);
-        border-radius: 8px;
+        background: #081408;
+        border: 2px solid var(--border, #184218);
         color: #fff;
-        padding: 0.5rem 0.75rem;
-        font-size: 0.9rem;
-        &:focus { outline: none; border-color: var(--success, #30d158); }
+        font-family: var(--font-terminal, monospace);
+        font-size: 1.25rem;
+        padding: 0.35rem 0.6rem;
+        &:focus {
+          outline: none;
+          border-color: var(--accent, #00ff66);
+        }
+        &::placeholder {
+          color: #436b43;
+        }
       }
 
       .btn-save-key {
-        background: var(--success, #30d158);
+        background: var(--accent, #00ff66);
         color: #000;
+        font-family: var(--font-pixel, monospace);
+        font-size: 0.6rem;
         font-weight: 700;
-        border: none;
-        padding: 0.5rem 0.85rem;
-        border-radius: 8px;
+        border: 2px solid #000;
+        box-shadow: 2px 2px 0px #000;
+        padding: 0.4rem 0.75rem;
         cursor: pointer;
+
+        &:active {
+          transform: translate(1px, 1px);
+          box-shadow: 1px 1px 0px #000;
+        }
       }
 
       .key-help {
-        font-size: 0.7rem;
-        color: var(--text-secondary, #8e8e93);
+        font-family: var(--font-terminal, monospace);
+        font-size: 1.05rem;
+        color: var(--text-secondary, #74ad74);
         margin: 0.2rem 0 0;
       }
     }
 
     .safari-steps {
-      background: rgba(255, 214, 10, 0.08);
-      border: 1px solid rgba(255, 214, 10, 0.2);
-      border-radius: 12px;
-      padding: 0.85rem;
-      font-size: 0.8rem;
-      color: var(--text-secondary, #8e8e93);
+      background: #091709;
+      border: 2px dashed #ffd60a;
+      padding: 0.75rem;
+      font-family: var(--font-terminal, monospace);
+      font-size: 1.15rem;
+      color: var(--text-secondary, #74ad74);
 
-      strong { color: #ffd60a; display: block; margin-bottom: 0.35rem; }
-      ol { padding-left: 1.25rem; margin: 0; }
-      li { margin-bottom: 0.25rem; }
-      code { color: #fff; background: rgba(0, 0, 0, 0.4); padding: 0.1rem 0.3rem; border-radius: 4px; }
+      strong {
+        font-family: var(--font-pixel, monospace);
+        font-size: 0.6rem;
+        color: #ffd60a;
+        display: block;
+        margin-bottom: 0.4rem;
+      }
+      ol { padding-left: 1.2rem; margin: 0; }
+      li { margin-bottom: 0.3rem; }
+      code {
+        color: var(--accent, #00ff66);
+        background: #000;
+        padding: 0.1rem 0.3rem;
+        border: 1px solid var(--border, #184218);
+      }
     }
 
     .btn-action {
-      background: var(--accent, #ff3b30);
-      color: #fff;
-      border: none;
-      padding: 0.75rem;
-      border-radius: var(--input-radius, 12px);
+      background: var(--accent, #00ff66);
+      color: #000;
+      border: 2px solid #000;
+      box-shadow: 2px 2px 0px #000;
+      padding: 0.65rem 0.85rem;
+      font-family: var(--font-pixel, monospace);
       font-weight: 700;
-      font-size: 0.85rem;
+      font-size: 0.6rem;
       cursor: pointer;
       text-align: center;
       -webkit-tap-highlight-color: transparent;
 
-      &:active { opacity: 0.8; }
+      &:active {
+        transform: translate(1px, 1px);
+        box-shadow: 1px 1px 0px #000;
+      }
+
+      &.btn-sync {
+        background: var(--accent, #00ff66);
+      }
 
       &.btn-secondary {
-        background: var(--bg-tertiary, #2c2c2e);
-        border: 1px solid var(--border, #38383a);
-        color: var(--text-primary, #fff);
+        background: #030603;
+        border: 2px solid var(--border, #184218);
+        color: var(--accent, #00ff66);
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
       }
     }
 
     .btn-danger {
-      background: rgba(255, 59, 48, 0.15);
-      border: 1px solid rgba(255, 59, 48, 0.3);
-      color: #ff3b30;
-      padding: 0.75rem;
-      border-radius: var(--input-radius, 12px);
+      background: #ff3b30;
+      color: #000;
+      border: 2px solid #000;
+      box-shadow: 2px 2px 0px #000;
+      padding: 0.65rem 0.85rem;
+      font-family: var(--font-pixel, monospace);
       font-weight: 700;
-      font-size: 0.85rem;
+      font-size: 0.6rem;
       cursor: pointer;
+      text-align: center;
 
-      &:active { opacity: 0.8; }
+      &:active {
+        transform: translate(1px, 1px);
+        box-shadow: 1px 1px 0px #000;
+      }
     }
 
     .file-label {
@@ -342,36 +437,57 @@ import { SyncService } from '../../core/services/sync.service';
     .security-actions {
       display: flex;
       flex-direction: column;
-      gap: 0.75rem;
+      gap: 0.65rem;
     }
 
     .pin-change-box {
-      background: var(--bg-tertiary, #2c2c2e);
-      border-radius: var(--input-radius, 12px);
-      padding: 0.85rem;
+      background: #030603;
+      border: 2px solid var(--border, #184218);
+      padding: 0.75rem;
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
 
-      h4 { font-size: 0.85rem; margin: 0; }
+      h4 {
+        font-family: var(--font-pixel, monospace);
+        font-size: 0.6rem;
+        color: var(--accent, #00ff66);
+        margin: 0;
+      }
     }
 
     .pin-input {
-      background: var(--bg-secondary, #1c1c1e);
-      border: 1px solid var(--border, #38383a);
-      border-radius: 8px;
+      background: #081408;
+      border: 2px solid var(--border, #184218);
       color: #fff;
+      font-family: var(--font-pixel, monospace);
       padding: 0.6rem;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       text-align: center;
-      &:focus { outline: none; border-color: var(--accent, #ff3b30); }
+      letter-spacing: 0.2em;
+
+      &:focus {
+        outline: none;
+        border-color: var(--accent, #00ff66);
+      }
+      &::placeholder {
+        letter-spacing: normal;
+        font-size: 0.6rem;
+        color: #436b43;
+      }
+    }
+
+    .alert-box {
+      background: #030603;
+      border: 2px solid var(--accent, #00ff66);
+      padding: 0.5rem;
+      text-align: center;
     }
 
     .alert-msg {
-      font-size: 0.8rem;
-      color: var(--success, #30d158);
-      text-align: center;
-      font-weight: 600;
+      font-family: var(--font-terminal, monospace);
+      font-size: 1.15rem;
+      color: var(--accent, #00ff66);
     }
   `],
 })
@@ -389,7 +505,7 @@ export class SettingsComponent {
 
   async saveSyncKey(): Promise<void> {
     await this.sync.setSyncKey(this.syncKeyInput);
-    this.backupMsg.set('✓ Clave de sincronización actualizada.');
+    this.backupMsg.set('✓ Clave de sincronización guardada.');
   }
 
   async triggerSync(): Promise<void> {
@@ -401,13 +517,13 @@ export class SettingsComponent {
     if (granted) {
       this.backupMsg.set('✓ Safari WebKit concedió almacenamiento persistente.');
     } else {
-      this.backupMsg.set('Para blindar al 100%, añade Rotom a la pantalla de inicio desde el menú Compartir.');
+      this.backupMsg.set('Para blindar al 100%, añade Rotom a la pantalla de inicio desde Compartir.');
     }
   }
 
   async exportBackup(): Promise<void> {
     await this.storage.exportDatabase();
-    this.backupMsg.set('✓ Archivo JSON generado. Guárdalo en la app "Archivos" de iOS.');
+    this.backupMsg.set('✓ Archivo JSON generado. Guárdalo en "Archivos" de iOS.');
   }
 
   async importBackup(event: Event): Promise<void> {
@@ -415,7 +531,7 @@ export class SettingsComponent {
     if (input.files && input.files.length > 0) {
       try {
         await this.storage.importDatabase(input.files[0]);
-        this.backupMsg.set('✓ Base de datos importada exitosamente desde el JSON.');
+        this.backupMsg.set('✓ Base de datos importada exitosamente.');
       } catch {
         this.backupMsg.set('Error al importar el archivo JSON.');
       }
@@ -425,7 +541,7 @@ export class SettingsComponent {
   async setupBiometric(): Promise<void> {
     const success = await this.lockService.setupBiometric();
     if (success) {
-      this.secMsg.set('✓ Face ID / Touch ID configurado y verificado en este iPhone.');
+      this.secMsg.set('✓ Face ID / Touch ID configurado en este iPhone.');
     } else {
       this.secMsg.set(this.lockService.errorMessage() || 'No se pudo configurar Face ID.');
     }
