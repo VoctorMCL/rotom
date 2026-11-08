@@ -174,9 +174,41 @@ export class StorageService {
     this.notifyChange();
   }
 
-  async deleteCustomItem(id: string): Promise<void> {
+  /**
+   * Elimina cualquier ítem del catálogo (sea creado por el usuario o parte del catálogo base).
+   * Para ítems del bundle base, guarda una marca tombstone (deleted: true) que lo oculta
+   * y se sincroniza automáticamente entre PC y celular.
+   */
+  async deleteCatalogItem(item: { id: string; type?: string; title?: string }): Promise<void> {
     if (!this.db) return;
-    await this.db.customCatalogItems.delete(id);
+    const tombstone: CustomCatalogItem = {
+      id: item.id,
+      type: (item.type as 'recipe' | 'laundry') || 'recipe',
+      title: item.title || 'Eliminado',
+      description: '',
+      tags: [],
+      createdAt: new Date().toISOString(),
+      deleted: true,
+      steps: [],
+    };
+    await this.db.customCatalogItems.put(tombstone);
+    await this.db.stepProgress.where('catalogItemId').equals(item.id).delete();
+    await this.refreshCustomItems();
+    this.notifyChange();
+  }
+
+  async deleteCustomItem(id: string): Promise<void> {
+    await this.deleteCatalogItem({ id });
+  }
+
+  async restoreDeletedCatalogItems(): Promise<void> {
+    if (!this.db) return;
+    const all = await this.db.customCatalogItems.toArray();
+    for (const item of all) {
+      if (item.deleted) {
+        await this.db.customCatalogItems.delete(item.id);
+      }
+    }
     await this.refreshCustomItems();
     this.notifyChange();
   }

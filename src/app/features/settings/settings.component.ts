@@ -122,6 +122,10 @@ import { SyncService } from '../../core/services/sync.service';
             📤 IMPORTAR BACKUP (.JSON)
             <input type="file" accept=".json" (change)="importBackup($event)" hidden />
           </label>
+
+          <button class="btn-action btn-secondary" (click)="restoreDefaults()">
+            🔄 RESTAURAR RECETAS BASE ELIMINADAS
+          </button>
         </div>
 
         @if (backupMsg()) {
@@ -535,6 +539,13 @@ export class SettingsComponent {
       } catch {
         this.backupMsg.set('Error al importar el archivo JSON.');
       }
+    }
+  }
+
+  async restoreDefaults(): Promise<void> {
+    if (confirm('¿Restaurar las recetas y guías base del catálogo que hayas eliminado?')) {
+      await this.storage.restoreDeletedCatalogItems();
+      this.backupMsg.set('✓ Recetas y guías base restauradas.');
     }
   }
 

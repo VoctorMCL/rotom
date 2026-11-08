@@ -35,6 +35,7 @@ export interface CustomCatalogItem {
   coverImage?: string;
   tags: string[];
   createdAt: string;
+  deleted?: boolean;         // Marcador de eliminación para recetas/guías base o custom
 
   // Campos específicos de Receta
   servings?: number;

@@ -14,6 +14,7 @@ export class CatalogService {
   /**
    * Catálogo unificado y reactivo: fusiona el catálogo estático con los ítems y pasos
    * personalizados creados en IndexedDB (los custom sobreescriben o agregan a los estáticos).
+   * Filtra cualquier elemento marcado con deleted: true.
    */
   readonly allItems = computed<CatalogItem[]>(() => {
     const staticItems = this.staticCatalog()?.items || [];
@@ -27,16 +28,21 @@ export class CatalogService {
     const merged: CatalogItem[] = [];
     for (const s of staticItems) {
       if (customMap.has(s.id)) {
-        merged.push(customMap.get(s.id)! as unknown as CatalogItem);
+        const custom = customMap.get(s.id)!;
         customMap.delete(s.id);
+        if (!custom.deleted) {
+          merged.push(custom as unknown as CatalogItem);
+        }
       } else {
         merged.push(s);
       }
     }
 
-    // Items completamente nuevos creados por el usuario
+    // Items completamente nuevos creados por el usuario (no eliminados)
     for (const c of customMap.values()) {
-      merged.push(c as unknown as CatalogItem);
+      if (!c.deleted) {
+        merged.push(c as unknown as CatalogItem);
+      }
     }
 
     return merged;

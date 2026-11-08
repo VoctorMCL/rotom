@@ -96,9 +96,24 @@ import type { CustomCatalogItem, SupermarketStore } from '../../core/models/stat
               <div class="card-body">
                 <div class="card-body-top">
                   <h3>{{ item.title }}</h3>
-                  @if (isCustomItem(item.id)) {
-                    <span class="custom-badge-pill">✨ Tuya</span>
-                  }
+                  <div class="card-actions" (click)="$event.stopPropagation()">
+                    <button
+                      type="button"
+                      class="btn-card-action btn-card-edit"
+                      (click)="openEditModal(item, $event)"
+                      title="Editar"
+                    >
+                      ✏️
+                    </button>
+                    <button
+                      type="button"
+                      class="btn-card-action btn-card-delete"
+                      (click)="deleteItem(item, $event)"
+                      title="Eliminar"
+                    >
+                      🗑️
+                    </button>
+                  </div>
                 </div>
                 <p class="desc">{{ item.description }}</p>
 
@@ -123,11 +138,14 @@ import type { CustomCatalogItem, SupermarketStore } from '../../core/models/stat
             <button class="btn-back" (click)="closeDetail()">
               ← Volver al catálogo
             </button>
-            @if (isCustomItem(selectedItem()!.id)) {
-              <button class="btn-delete-custom" (click)="deleteSelectedCustomItem()">
-                🗑️ Eliminar
+            <div class="detail-actions">
+              <button class="btn-detail-action btn-detail-edit" (click)="openEditModal(selectedItem()!)">
+                ✏️ EDITAR
               </button>
-            }
+              <button class="btn-detail-action btn-detail-delete" (click)="deleteItem(selectedItem()!)">
+                🗑️ ELIMINAR
+              </button>
+            </div>
           </div>
 
           <!-- ================= RECIPE DETAIL (ROTOM HORNO) ================= -->
@@ -455,7 +473,7 @@ import type { CustomCatalogItem, SupermarketStore } from '../../core/models/stat
                   alt=""
                   class="modal-sprite"
                 />
-                <h3>Crear Nueva Guía</h3>
+                <h3>{{ editingItemId ? 'EDITAR GUÍA / RECETA' : 'CREAR NUEVA GUÍA' }}</h3>
               </div>
               <button class="btn-close-modal" (click)="closeCreateModal()">✕</button>
             </div>
@@ -650,7 +668,7 @@ import type { CustomCatalogItem, SupermarketStore } from '../../core/models/stat
             <div class="modal-footer">
               <button type="button" class="btn-cancel" (click)="closeCreateModal()">Cancelar</button>
               <button type="button" class="btn-save-item" (click)="saveCreatedItem()">
-                ✓ Guardar en Rotom
+                {{ editingItemId ? '✓ Guardar Cambios' : '✓ Guardar en Rotom' }}
               </button>
             </div>
           </div>
@@ -826,15 +844,35 @@ import type { CustomCatalogItem, SupermarketStore } from '../../core/models/stat
           justify-content: space-between;
           align-items: center;
           margin-bottom: 0.25rem;
+          gap: 0.5rem;
 
-          h3 { font-size: 0.75rem; margin: 0; color: #fff; }
-          .custom-badge-pill {
-            font-family: var(--font-pixel, monospace);
-            font-size: 0.45rem;
-            color: #000;
-            background: #ffd60a;
-            padding: 1px 4px;
-            border: 1px solid #000;
+          h3 { font-size: 0.75rem; margin: 0; color: #fff; flex: 1; }
+
+          .card-actions {
+            display: flex;
+            gap: 0.35rem;
+            flex-shrink: 0;
+
+            .btn-card-action {
+              background: #040804;
+              border: 1px solid var(--border, #184218);
+              color: var(--text-secondary, #74ad74);
+              font-size: 0.75rem;
+              padding: 0.2rem 0.35rem;
+              cursor: pointer;
+              box-shadow: 1px 1px 0px #000;
+
+              &:hover {
+                border-color: var(--accent, #00ff66);
+              }
+              &.btn-card-delete:hover {
+                border-color: #ff3b30;
+              }
+              &:active {
+                transform: translate(1px, 1px);
+                box-shadow: none;
+              }
+            }
           }
         }
 
@@ -897,15 +935,34 @@ import type { CustomCatalogItem, SupermarketStore } from '../../core/models/stat
           cursor: pointer;
         }
 
-        .btn-delete-custom {
-          background: #2b0806;
-          border: 2px solid #ff3b30;
-          box-shadow: 2px 2px 0px #000;
-          color: #ff3b30;
-          font-family: var(--font-pixel, monospace);
-          padding: 0.35rem 0.65rem;
-          font-size: 0.55rem;
-          cursor: pointer;
+        .detail-actions {
+          display: flex;
+          gap: 0.45rem;
+
+          .btn-detail-action {
+            font-family: var(--font-pixel, monospace);
+            font-size: 0.55rem;
+            padding: 0.35rem 0.65rem;
+            box-shadow: 2px 2px 0px #000;
+            cursor: pointer;
+
+            &:active {
+              transform: translate(1px, 1px);
+              box-shadow: 1px 1px 0px #000;
+            }
+
+            &.btn-detail-edit {
+              background: #081408;
+              border: 2px solid var(--border-bright, #00ff66);
+              color: var(--accent, #00ff66);
+            }
+
+            &.btn-detail-delete {
+              background: #2b0806;
+              border: 2px solid #ff3b30;
+              color: #ff3b30;
+            }
+          }
         }
       }
     }
@@ -1606,17 +1663,32 @@ export class WikiComponent implements OnInit {
     }
   }
 
-  async deleteSelectedCustomItem(): Promise<void> {
-    const item = this.selectedItem();
-    if (!item) return;
-    if (confirm(`¿Eliminar "${item.title}"?`)) {
-      await this.storage.deleteCustomItem(item.id);
+  async deleteItem(item: CatalogItem, event?: Event): Promise<void> {
+    if (event) {
+      event.stopPropagation();
+    }
+    const confirmDelete = confirm(`¿Eliminar definitivamente "${item.title}"?`);
+    if (!confirmDelete) return;
+
+    await this.storage.deleteCatalogItem(item);
+
+    if (this.selectedItem()?.id === item.id) {
       this.closeDetail();
     }
   }
 
-  // ─── Modal Crear Guía / Receta ───
+  async deleteSelectedCustomItem(): Promise<void> {
+    const item = this.selectedItem();
+    if (item) {
+      await this.deleteItem(item);
+    }
+  }
+
+  // ─── Modal Crear / Editar Guía o Receta ───
+  editingItemId: string | null = null;
+
   openCreateModal(): void {
+    this.editingItemId = null;
     this.isCreating.set(true);
     this.createType = this.activeType() === 'laundry' ? 'laundry' : 'recipe';
     this.createTitle = '';
@@ -1628,10 +1700,52 @@ export class WikiComponent implements OnInit {
     this.newIngQty = '';
     this.draftStepText = '';
     this.draftStepMins = null;
+    this.createPrepTime = 15;
+    this.createCookTime = 25;
+    this.createServings = 2;
+    this.createDifficulty = 'fácil';
+    this.createWashTemp = '30°C';
+    this.createDryMethod = 'Secar a la sombra';
+    this.createIronTemp = 'Plancha tibia';
+    this.createTipsStr = '';
+  }
+
+  openEditModal(item: CatalogItem, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    this.editingItemId = item.id;
+    this.createType = item.type;
+    this.createTitle = item.title;
+    this.createDesc = item.description || '';
+    this.createTagsStr = (item.tags || []).join(', ');
+
+    if (item.type === 'recipe') {
+      const r = item as Recipe;
+      this.createServings = r.servings || 2;
+      this.createPrepTime = r.prepTimeMinutes || 10;
+      this.createCookTime = r.cookTimeMinutes || 20;
+      this.createDifficulty = r.difficulty || 'fácil';
+      this.draftIngredients = (r.ingredients || []).map((i) => ({ ...i }));
+    } else {
+      const l = item as LaundryGuide;
+      this.createWashTemp = l.washTemp || '30°C';
+      this.createDryMethod = l.dryMethod || 'Secar a la sombra';
+      this.createIronTemp = l.ironTemp || 'Plancha tibia';
+      this.createTipsStr = (l.tips || []).join(', ');
+    }
+
+    this.draftSteps = (item.steps || []).map((s) => ({ ...s }));
+    this.newIngName = '';
+    this.newIngQty = '';
+    this.draftStepText = '';
+    this.draftStepMins = null;
+    this.isCreating.set(true);
   }
 
   closeCreateModal(): void {
     this.isCreating.set(false);
+    this.editingItemId = null;
   }
 
   addIngredientToDraft(): void {
@@ -1681,41 +1795,59 @@ export class WikiComponent implements OnInit {
       .filter(Boolean);
 
     const isRec = this.createType === 'recipe';
-    const id = isRec ? `rec-user-${Date.now()}` : `laundry-user-${Date.now()}`;
-    const defaultCover = isRec ? 'assets/images/rotom/rotom-heat.webp' : 'assets/images/rotom/rotom-wash.webp';
+    const isEditing = !!this.editingItemId;
+    const id = isEditing
+      ? this.editingItemId!
+      : isRec
+        ? `rec-user-${Date.now()}`
+        : `laundry-user-${Date.now()}`;
 
-    const newItem: CustomCatalogItem = {
+    let coverImage = isRec ? 'assets/images/rotom/rotom-heat.webp' : 'assets/images/rotom/rotom-wash.webp';
+    if (isEditing) {
+      const current = this.catalog.getItemById(id);
+      if (current?.coverImage) {
+        coverImage = current.coverImage;
+      }
+    }
+
+    const itemData: CustomCatalogItem = {
       id,
       type: this.createType,
       title,
       description: this.createDesc.trim() || (isRec ? 'Receta casera' : 'Guía de lavado'),
-      coverImage: defaultCover,
+      coverImage,
       tags: tags.length > 0 ? tags : [isRec ? 'cocina' : 'ropa'],
       createdAt: new Date().toISOString(),
+      deleted: false,
       steps: this.draftSteps.length > 0 ? this.draftSteps : [{ order: 1, instruction: 'Seguir instrucciones generales.' }],
     };
 
     if (isRec) {
-      newItem.servings = this.createServings;
-      newItem.prepTimeMinutes = this.createPrepTime;
-      newItem.cookTimeMinutes = this.createCookTime;
-      newItem.difficulty = this.createDifficulty;
-      newItem.ingredients = this.draftIngredients;
+      itemData.servings = this.createServings;
+      itemData.prepTimeMinutes = this.createPrepTime;
+      itemData.cookTimeMinutes = this.createCookTime;
+      itemData.difficulty = this.createDifficulty;
+      itemData.ingredients = this.draftIngredients;
     } else {
-      newItem.washTemp = this.createWashTemp;
-      newItem.dryMethod = this.createDryMethod;
-      newItem.ironTemp = this.createIronTemp;
-      newItem.fabricCare = [];
-      newItem.tips = this.createTipsStr
+      itemData.washTemp = this.createWashTemp;
+      itemData.dryMethod = this.createDryMethod;
+      itemData.ironTemp = this.createIronTemp;
+      itemData.fabricCare = [];
+      itemData.tips = this.createTipsStr
         .split(',')
         .map((t) => t.trim())
         .filter(Boolean);
     }
 
-    await this.storage.addCustomItem(newItem);
+    if (isEditing) {
+      await this.storage.updateCustomItem(itemData);
+    } else {
+      await this.storage.addCustomItem(itemData);
+    }
+
     this.closeCreateModal();
 
-    // Abrir de inmediato en vista de detalle
+    // Actualizar vista de detalle con el ítem recién guardado/actualizado
     const saved = this.catalog.getItemById(id);
     if (saved) {
       this.openDetail(saved);
