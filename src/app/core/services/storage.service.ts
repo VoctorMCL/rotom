@@ -4,6 +4,7 @@ import Dexie, { type Table } from 'dexie';
 import type {
   StepProgress,
   ShoppingItem,
+  SupermarketStore,
   TodoItem,
   DailyCheckIn,
   CalendarEvent,
@@ -24,7 +25,7 @@ export class RotomDB extends Dexie {
     super('Rotom');
     this.version(1).stores({
       stepProgress: '++id, catalogItemId, [catalogItemId+stepOrder]',
-      shoppingItems: '++id, name, category, checked, sourceRecipeId',
+      shoppingItems: '++id, name, store, category, checked, sourceRecipeId',
       todoItems: '++id, category, priority, completed, dueDate',
       dailyCheckIns: '++id, &date',
       calendarEvents: '++id, date, type, completed',
@@ -43,15 +44,28 @@ export class StorageService {
   readonly todoList = signal<TodoItem[]>([]);
   readonly checkIns = signal<DailyCheckIn[]>([]);
   readonly calendarEvents = signal<CalendarEvent[]>([]);
-  readonly isPersistent = signal(false);
 
-  // ─── Computed ───
+  // ─── Safari & Storage Status Signals ───
+  readonly isPersistent = signal(false);
+  readonly isStandalone = signal(false);
+
+  // ─── Computed Values ───
   readonly uncheckedShoppingCount = computed(
     () => this.shoppingList().filter((i) => !i.checked).length
   );
   readonly pendingTodoCount = computed(
     () => this.todoList().filter((t) => !t.completed).length
   );
+
+  readonly shoppingByStore = computed(() => {
+    const list = this.shoppingList();
+    return {
+      exito: list.filter((i) => i.store === 'Éxito'),
+      d1: list.filter((i) => i.store === 'D1'),
+      otro: list.filter((i) => i.store !== 'Éxito' && i.store !== 'D1'),
+    };
+  });
+
   readonly shoppingByCategory = computed(() => {
     const items = this.shoppingList();
     const grouped = new Map<string, ShoppingItem[]>();
@@ -65,8 +79,18 @@ export class StorageService {
 
   constructor() {
     if (isPlatformBrowser(this.platformId)) {
+      this.detectStandalone();
       this.db = new RotomDB();
       this.initializeData();
+    }
+  }
+
+  private detectStandalone(): void {
+    if (typeof window !== 'undefined') {
+      const isStandalonePwa =
+        (window.navigator as unknown as { standalone?: boolean }).standalone === true ||
+        window.matchMedia('(display-mode: standalone)').matches;
+      this.isStandalone.set(isStandalonePwa);
     }
   }
 
@@ -77,21 +101,51 @@ export class StorageService {
       this.refreshTodoList(),
       this.refreshCheckIns(),
       this.refreshCalendarEvents(),
-      this.requestPersistentStorage(),
+      this.checkPersistedStatus(),
     ]);
   }
 
-  // ─── Persistent Storage (Safari purge protection) ───
-  async requestPersistentStorage(): Promise<boolean> {
-    if (typeof navigator !== 'undefined' && navigator.storage?.persist) {
-      const granted = await navigator.storage.persist();
-      this.isPersistent.set(granted);
-      return granted;
+  // ─── Safari WebKit Persistent Storage Check ───
+  /**
+   * En iOS Safari, persist() SOLO se puede ejecutar ante un gesto de usuario explícito.
+   * Al iniciar, usamos persisted() que es de solo lectura y no arroja error.
+   */
+  async checkPersistedStatus(): Promise<boolean> {
+    if (typeof navigator !== 'undefined' && navigator.storage?.persisted) {
+      try {
+        const persisted = await navigator.storage.persisted();
+        this.isPersistent.set(persisted);
+        return persisted;
+      } catch {
+        return false;
+      }
     }
     return false;
   }
 
-  // ─── Step Progress ───
+  /**
+   * Llamado únicamente al pulsar el botón del usuario (Touch event).
+   * En iOS Safari, las PWAs instaladas en la pantalla de inicio tienen aislamiento permanente.
+   */
+  async requestPersistentStorage(): Promise<boolean> {
+    if (typeof navigator !== 'undefined' && navigator.storage?.persist) {
+      try {
+        const granted = await navigator.storage.persist();
+        this.isPersistent.set(granted);
+        return granted;
+      } catch (err) {
+        console.warn('Storage persist request ignored by browser:', err);
+      }
+    }
+    // Si está en Standalone PWA en iOS, WebKit preserva los datos
+    if (this.isStandalone()) {
+      this.isPersistent.set(true);
+      return true;
+    }
+    return false;
+  }
+
+  // ─── Step Progress (Wiki) ───
   async getStepProgress(catalogItemId: string): Promise<StepProgress[]> {
     if (!this.db) return [];
     return this.db.stepProgress
@@ -124,17 +178,19 @@ export class StorageService {
 
   async resetSteps(catalogItemId: string): Promise<void> {
     if (!this.db) return;
-    await this.db.stepProgress
-      .where('catalogItemId')
-      .equals(catalogItemId)
-      .delete();
+    await this.db.stepProgress.where('catalogItemId').equals(catalogItemId).delete();
   }
 
-  // ─── Shopping List ───
+  // ─── Shopping List (Éxito & D1) ───
   async refreshShoppingList(): Promise<void> {
     if (!this.db) return;
     const items = await this.db.shoppingItems.toArray();
-    this.shoppingList.set(items);
+    // Compatibilidad: si algún ítem viejo no tiene store, asignar D1
+    const normalized = items.map((i) => ({
+      ...i,
+      store: i.store || ('D1' as SupermarketStore),
+    }));
+    this.shoppingList.set(normalized);
   }
 
   async addShoppingItem(item: Omit<ShoppingItem, 'id'>): Promise<void> {
@@ -143,19 +199,25 @@ export class StorageService {
     await this.refreshShoppingList();
   }
 
+  async updateShoppingItem(id: number, updates: Partial<Omit<ShoppingItem, 'id'>>): Promise<void> {
+    if (!this.db) return;
+    await this.db.shoppingItems.update(id, {
+      ...updates,
+      updatedAt: new Date().toISOString(),
+    });
+    await this.refreshShoppingList();
+  }
+
   async toggleShoppingItem(id: number): Promise<void> {
     if (!this.db) return;
     const item = await this.db.shoppingItems.get(id);
     if (item) {
-      await this.db.shoppingItems.update(id, { checked: !item.checked });
+      await this.db.shoppingItems.update(id, {
+        checked: !item.checked,
+        updatedAt: new Date().toISOString(),
+      });
       await this.refreshShoppingList();
     }
-  }
-
-  async updateShoppingItem(id: number, updates: Partial<Omit<ShoppingItem, 'id'>>): Promise<void> {
-    if (!this.db) return;
-    await this.db.shoppingItems.update(id, updates);
-    await this.refreshShoppingList();
   }
 
   async removeShoppingItem(id: number): Promise<void> {
@@ -172,24 +234,20 @@ export class StorageService {
   }
 
   /**
-   * Empuja los ingredientes de una receta estática hacia la lista de compras dinámica.
-   * Valida duplicados por nombre de manera insensible a mayúsculas/minúsculas y espacios.
+   * Empuja los ingredientes de una receta hacia la lista de compras.
+   * Por defecto asigna D1 (o la tienda que el usuario elija).
    */
-  async pushIngredientsToShoppingList(recipe: Recipe): Promise<number> {
+  async pushIngredientsToShoppingList(recipe: Recipe, targetStore: SupermarketStore = 'D1'): Promise<number> {
     if (!this.db) return 0;
     const existing = await this.db.shoppingItems.toArray();
-    const existingNames = new Set(
-      existing.map((i) => i.name.toLowerCase().trim())
-    );
+    const existingNames = new Set(existing.map((i) => i.name.toLowerCase().trim()));
 
     const newItems: ShoppingItem[] = recipe.ingredients
-      .filter(
-        (ing: Ingredient) =>
-          !existingNames.has(ing.name.toLowerCase().trim())
-      )
+      .filter((ing: Ingredient) => !existingNames.has(ing.name.toLowerCase().trim()))
       .map((ing: Ingredient) => ({
         name: ing.name,
         quantity: ing.quantity,
+        store: targetStore,
         category: ing.category,
         checked: false,
         sourceRecipeId: recipe.id,
@@ -200,8 +258,21 @@ export class StorageService {
       await this.db.shoppingItems.bulkAdd(newItems);
       await this.refreshShoppingList();
     }
-
     return newItems.length;
+  }
+
+  /**
+   * Sincronización masiva desde PC o archivo JSON.
+   */
+  async bulkSyncShoppingItems(remoteItems: ShoppingItem[]): Promise<void> {
+    if (!this.db) return;
+    await this.db.shoppingItems.clear();
+    const cleanItems = remoteItems.map(({ id, ...rest }) => ({
+      ...rest,
+      store: rest.store || ('D1' as SupermarketStore),
+    }));
+    await this.db.shoppingItems.bulkAdd(cleanItems as ShoppingItem[]);
+    await this.refreshShoppingList();
   }
 
   // ─── To-Do List ───
@@ -235,11 +306,16 @@ export class StorageService {
     await this.refreshTodoList();
   }
 
-  // ─── Daily Check-Ins ───
+  // ─── Daily Check-Ins & Calendar ───
   async refreshCheckIns(): Promise<void> {
     if (!this.db) return;
     const items = await this.db.dailyCheckIns.orderBy('date').reverse().toArray();
     this.checkIns.set(items);
+  }
+
+  async getCheckInForDate(date: string): Promise<DailyCheckIn | undefined> {
+    if (!this.db) return undefined;
+    return this.db.dailyCheckIns.where('date').equals(date).first();
   }
 
   async addCheckIn(checkIn: Omit<DailyCheckIn, 'id'>): Promise<void> {
@@ -248,12 +324,6 @@ export class StorageService {
     await this.refreshCheckIns();
   }
 
-  async getCheckInForDate(date: string): Promise<DailyCheckIn | undefined> {
-    if (!this.db) return undefined;
-    return this.db.dailyCheckIns.where('date').equals(date).first();
-  }
-
-  // ─── Calendar Events ───
   async refreshCalendarEvents(): Promise<void> {
     if (!this.db) return;
     const items = await this.db.calendarEvents.orderBy('date').toArray();
@@ -270,9 +340,7 @@ export class StorageService {
     if (!this.db) return;
     const event = await this.db.calendarEvents.get(id);
     if (event) {
-      await this.db.calendarEvents.update(id, {
-        completed: !event.completed,
-      });
+      await this.db.calendarEvents.update(id, { completed: !event.completed });
       await this.refreshCalendarEvents();
     }
   }
@@ -297,10 +365,7 @@ export class StorageService {
 
   async setSetting(key: string, value: string): Promise<void> {
     if (!this.db) return;
-    const existing = await this.db.userSettings
-      .where('key')
-      .equals(key)
-      .first();
+    const existing = await this.db.userSettings.where('key').equals(key).first();
     if (existing) {
       await this.db.userSettings.update(existing.id!, { value });
     } else {
@@ -308,31 +373,30 @@ export class StorageService {
     }
   }
 
-  // ─── Backup / Restore (Export/Import JSON directo a iOS Files) ───
-  async exportDatabase(): Promise<void> {
-    if (!this.db) return;
+  // ─── Backup / Restore (JSON para Archivos de iOS) ───
+  async exportDatabase(): Promise<string> {
+    if (!this.db) return '{}';
     const data = {
       exportedAt: new Date().toISOString(),
-      version: '1.0.0',
+      version: '1.1.0',
       tables: {
         stepProgress: await this.db.stepProgress.toArray(),
         shoppingItems: await this.db.shoppingItems.toArray(),
         todoItems: await this.db.todoItems.toArray(),
-        dailyCheckIns: await this.db.dailyCheckIns.toArray(),
         calendarEvents: await this.db.calendarEvents.toArray(),
         userSettings: await this.db.userSettings.toArray(),
       },
     };
 
-    const blob = new Blob([JSON.stringify(data, null, 2)], {
-      type: 'application/json',
-    });
+    const jsonStr = JSON.stringify(data, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = `rotom-backup-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
+    return jsonStr;
   }
 
   async importDatabase(file: File): Promise<void> {
@@ -346,45 +410,26 @@ export class StorageService {
         this.db.stepProgress,
         this.db.shoppingItems,
         this.db.todoItems,
-        this.db.dailyCheckIns,
         this.db.calendarEvents,
         this.db.userSettings,
       ],
       async () => {
-        // Clear all tables
         await this.db!.stepProgress.clear();
         await this.db!.shoppingItems.clear();
         await this.db!.todoItems.clear();
-        await this.db!.dailyCheckIns.clear();
         await this.db!.calendarEvents.clear();
         await this.db!.userSettings.clear();
 
-        // Strip auto-generated IDs so Dexie creates fresh sequential ones
         const stripId = <T extends { id?: number }>(items: T[]): T[] =>
           items.map(({ id, ...rest }) => rest as T);
 
-        if (data.tables?.stepProgress)
-          await this.db!.stepProgress.bulkAdd(stripId(data.tables.stepProgress));
-        if (data.tables?.shoppingItems)
-          await this.db!.shoppingItems.bulkAdd(
-            stripId(data.tables.shoppingItems)
-          );
-        if (data.tables?.todoItems)
-          await this.db!.todoItems.bulkAdd(stripId(data.tables.todoItems));
-        if (data.tables?.dailyCheckIns)
-          await this.db!.dailyCheckIns.bulkAdd(
-            stripId(data.tables.dailyCheckIns)
-          );
-        if (data.tables?.calendarEvents)
-          await this.db!.calendarEvents.bulkAdd(
-            stripId(data.tables.calendarEvents)
-          );
-        if (data.tables?.userSettings)
-          await this.db!.userSettings.bulkAdd(stripId(data.tables.userSettings));
+        if (data.tables?.stepProgress) await this.db!.stepProgress.bulkAdd(stripId(data.tables.stepProgress));
+        if (data.tables?.shoppingItems) await this.db!.shoppingItems.bulkAdd(stripId(data.tables.shoppingItems));
+        if (data.tables?.todoItems) await this.db!.todoItems.bulkAdd(stripId(data.tables.todoItems));
+        if (data.tables?.calendarEvents) await this.db!.calendarEvents.bulkAdd(stripId(data.tables.calendarEvents));
+        if (data.tables?.userSettings) await this.db!.userSettings.bulkAdd(stripId(data.tables.userSettings));
       }
     );
-
-    // Refresh all signals
     await this.initializeData();
   }
 }

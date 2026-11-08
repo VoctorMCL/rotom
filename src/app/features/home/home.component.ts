@@ -2,7 +2,7 @@ import { Component, inject, signal, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { StorageService } from '../../core/services/storage.service';
 import { CatalogService } from '../../core/services/catalog.service';
-import type { DailyCheckIn } from '../../core/models/state.models';
+import { SyncService } from '../../core/services/sync.service';
 
 @Component({
   selector: 'app-home',
@@ -10,13 +10,13 @@ import type { DailyCheckIn } from '../../core/models/state.models';
   imports: [RouterLink],
   template: `
     <div class="home-container">
-      <!-- Greeting & Date -->
+      <!-- Greeting & Mascot Header -->
       <section class="welcome-section">
         <div class="welcome-header">
           <div class="welcome-text">
             <span class="date-badge">{{ todayFormatted }}</span>
             <h1>¡Hola, Víctor! 👋</h1>
-            <p class="subtitle">Rotom está activo y 100% offline en tu iPhone.</p>
+            <p class="subtitle">Rotom listo en tu dispositivo.</p>
           </div>
           <div class="rotom-avatar">
             <img src="assets/images/rotom/rotom-default.webp" alt="Rotom" class="floating-rotom" />
@@ -24,107 +24,139 @@ import type { DailyCheckIn } from '../../core/models/state.models';
         </div>
       </section>
 
-      <!-- Persistent Storage Banner if not granted -->
-      @if (!storage.isPersistent()) {
-        <div class="banner-persistent" (click)="requestPersistence()">
-          <span class="banner-icon">🛡️</span>
-          <div class="banner-content">
-            <strong>Protege tus datos contra Safari</strong>
-            <span>Toca para activar almacenamiento persistente.</span>
+      <!-- Sync Status & Quick Cloud Sync -->
+      <section class="sync-banner" (click)="sync.syncNow()">
+        <div class="sync-left">
+          <span class="sync-indicator" [class]="sync.syncState()"></span>
+          <div class="sync-text">
+            <strong>PC ↔ Celular</strong>
+            <span>{{ sync.statusMessage() }}</span>
           </div>
         </div>
-      }
-
-      <!-- Daily Check-In Widget -->
-      <section class="card checkin-card">
-        <div class="card-header">
-          <h3>Check-In de Hoy</h3>
-          @if (todayCheckIn()) {
-            <span class="badge-done">Completado ✓</span>
-          }
-        </div>
-
-        <div class="checkin-row">
-          <label>Ánimo</label>
-          <div class="emoji-selector">
-            @for (item of moodOptions; track item.val) {
-              <button
-                type="button"
-                class="emoji-btn"
-                [class.selected]="selectedMood === item.val"
-                (click)="setMood(item.val)"
-              >
-                {{ item.emoji }}
-              </button>
-            }
-          </div>
-        </div>
-
-        <div class="checkin-row">
-          <label>Energía</label>
-          <div class="energy-selector">
-            @for (level of [1, 2, 3, 4, 5]; track level) {
-              <button
-                type="button"
-                class="level-btn"
-                [class.selected]="selectedEnergy === level"
-                (click)="setEnergy(level)"
-              >
-                {{ level }}⚡
-              </button>
-            }
-          </div>
-        </div>
-
-        <button class="btn-save-checkin" (click)="saveCheckIn()">
-          {{ todayCheckIn() ? 'Actualizar Check-In' : 'Guardar Check-In' }}
+        <button class="btn-sync-action" [disabled]="sync.syncState() === 'syncing'">
+          {{ sync.syncState() === 'syncing' ? 'Sincronizando...' : 'Sincronizar 🔄' }}
         </button>
       </section>
 
-      <!-- Quick Metrics Grid -->
-      <section class="metrics-grid">
-        <a routerLink="/shopping" class="metric-card">
-          <div class="metric-top">
-            <span class="metric-icon">🛒</span>
-            <span class="metric-val">{{ storage.uncheckedShoppingCount() }}</span>
+      <!-- Safari Storage Protection Alert / Status -->
+      @if (!storage.isStandalone() && !storage.isPersistent()) {
+        <div class="banner-safari-install" (click)="requestPersistence()">
+          <span class="banner-icon">🛡️</span>
+          <div class="banner-content">
+            <strong>Blindaje Safari para iPhone</strong>
+            <span>Pulsa Compartir > "Añadir a pantalla de inicio" para proteger datos de la purga de 7 días.</span>
           </div>
-          <span class="metric-label">Por comprar</span>
-        </a>
+        </div>
+      } @else {
+        <div class="banner-safari-ok">
+          <span class="ok-icon">✓</span>
+          <span>Almacenamiento protegido en iOS (100% offline).</span>
+        </div>
+      }
 
-        <a routerLink="/todo" class="metric-card">
-          <div class="metric-top">
-            <span class="metric-icon">✓</span>
-            <span class="metric-val">{{ storage.pendingTodoCount() }}</span>
-          </div>
-          <span class="metric-label">Tareas pendientes</span>
-        </a>
+      <!-- ACCESOS RÁPIDOS PRINCIPALES -->
+      <section class="quick-access-section">
+        <h3 class="section-title">Accesos Rápidos</h3>
 
-        <a routerLink="/calendar" class="metric-card">
-          <div class="metric-top">
-            <span class="metric-icon">📅</span>
-            <span class="metric-val">{{ todayEventsCount }}</span>
-          </div>
-          <span class="metric-label">Agenda hoy</span>
-        </a>
+        <div class="quick-access-grid">
+          <!-- 1. Compras (Éxito & D1) -->
+          <a routerLink="/shopping" class="quick-tile shopping-tile">
+            <div class="tile-top">
+              <span class="tile-emoji">🛒</span>
+              <div class="store-badges">
+                <span class="badge-d1">D1: {{ storage.shoppingByStore().d1.length }}</span>
+                <span class="badge-exito">Éxito: {{ storage.shoppingByStore().exito.length }}</span>
+              </div>
+            </div>
+            <div class="tile-bottom">
+              <h4>Lista de Compras</h4>
+              <p>{{ storage.uncheckedShoppingCount() }} productos pendientes</p>
+            </div>
+          </a>
+
+          <!-- 2. Lavadora (Modo Lavado) -->
+          <a routerLink="/wiki" [queryParams]="{ type: 'laundry' }" class="quick-tile wash-tile">
+            <div class="tile-top">
+              <img src="assets/images/rotom/rotom-wash.webp" alt="Rotom Lavadora" class="tile-rotom-img wash-glow" />
+              <span class="type-pill-water">Agua 💧</span>
+            </div>
+            <div class="tile-bottom">
+              <h4>Lavadora de Ropa</h4>
+              <p>Manuales de lavado y cuidado</p>
+            </div>
+          </a>
+
+          <!-- 3. Cocina & Recetas (Modo Horno) -->
+          <a routerLink="/wiki" [queryParams]="{ type: 'recipe' }" class="quick-tile heat-tile">
+            <div class="tile-top">
+              <img src="assets/images/rotom/rotom-heat.webp" alt="Rotom Horno" class="tile-rotom-img heat-glow" />
+              <span class="type-pill-fire">Fuego 🔥</span>
+            </div>
+            <div class="tile-bottom">
+              <h4>Cocina & Recetas</h4>
+              <p>Pastel de choclo, sopaipillas...</p>
+            </div>
+          </a>
+
+          <!-- 4. Calendario / Agenda -->
+          <a routerLink="/calendar" class="quick-tile calendar-tile">
+            <div class="tile-top">
+              <span class="tile-emoji">📅</span>
+              <span class="tile-stat">{{ todayEventsCount }} hoy</span>
+            </div>
+            <div class="tile-bottom">
+              <h4>Agenda</h4>
+              <p>Planificación de comidas y lavados</p>
+            </div>
+          </a>
+
+          <!-- 5. Tareas Rápidas -->
+          <a routerLink="/todo" class="quick-tile todo-tile">
+            <div class="tile-top">
+              <span class="tile-emoji">✓</span>
+              <span class="tile-stat">{{ storage.pendingTodoCount() }} activas</span>
+            </div>
+            <div class="tile-bottom">
+              <h4>Tareas</h4>
+              <p>To-Do list ergonómica a una mano</p>
+            </div>
+          </a>
+
+          <!-- 6. Ajustes & Backup -->
+          <a routerLink="/settings" class="quick-tile settings-tile">
+            <div class="tile-top">
+              <span class="tile-emoji">⚙️</span>
+              <span class="tile-stat">Local</span>
+            </div>
+            <div class="tile-bottom">
+              <h4>Ajustes</h4>
+              <p>Seguridad Face ID, PIN y Backup</p>
+            </div>
+          </a>
+        </div>
       </section>
 
-      <!-- Quick Wiki Highlights -->
+      <!-- Highlights del Catálogo -->
       <section class="quick-wiki">
         <div class="section-header">
-          <h3>Wiki Rápida</h3>
-          <a routerLink="/wiki" class="see-all">Ver todo →</a>
+          <h3>Destacados en Disco</h3>
+          <a routerLink="/wiki" class="see-all">Ver todos →</a>
         </div>
 
         <div class="horizontal-scroll">
           @for (item of catalog.items(); track item.id) {
             <a [routerLink]="['/wiki', item.id]" class="wiki-card-mini">
               <div class="cover-placeholder">
-                <span class="cover-type">{{ item.type === 'recipe' ? '🍳' : '🧺' }}</span>
+                <img
+                  [src]="item.type === 'recipe' ? 'assets/images/rotom/rotom-heat-sprite.webp' : 'assets/images/rotom/rotom-wash-sprite.webp'"
+                  alt=""
+                  class="mini-sprite"
+                />
               </div>
               <div class="mini-info">
                 <h4>{{ item.title }}</h4>
                 <span class="mini-meta">
-                  {{ item.type === 'recipe' ? 'Receta' : 'Lavado' }}
+                  {{ item.type === 'recipe' ? 'Receta · Horno' : 'Prendas · Lavadora' }}
                 </span>
               </div>
             </a>
@@ -149,9 +181,7 @@ import type { DailyCheckIn } from '../../core/models/state.models';
         justify-content: space-between;
       }
 
-      .welcome-text {
-        flex: 1;
-      }
+      .welcome-text { flex: 1; }
 
       .rotom-avatar {
         width: 76px;
@@ -194,153 +224,208 @@ import type { DailyCheckIn } from '../../core/models/state.models';
       }
     }
 
-    .banner-persistent {
+    /* ─── Sync Status Banner (PC ↔ Celular) ─── */
+    .sync-banner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-secondary, #1c1c1e);
+      border: 1px solid var(--border, #38383a);
+      border-radius: var(--card-radius, 16px);
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+
+      .sync-left {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+
+        .sync-indicator {
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          background: #8e8e93;
+
+          &.synced { background: var(--success, #30d158); }
+          &.syncing { background: var(--warning, #ffd60a); animation: pulse 1s infinite; }
+          &.offline { background: #636366; }
+        }
+
+        .sync-text {
+          display: flex;
+          flex-direction: column;
+          strong { font-size: 0.85rem; color: #fff; }
+          span { font-size: 0.75rem; color: var(--text-secondary, #8e8e93); }
+        }
+      }
+
+      .btn-sync-action {
+        background: var(--bg-tertiary, #2c2c2e);
+        border: 1px solid var(--border, #38383a);
+        color: var(--text-primary, #fff);
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.35rem 0.65rem;
+        border-radius: 8px;
+        cursor: pointer;
+        &:active { opacity: 0.7; }
+      }
+    }
+
+    /* ─── Safari Protection Status ─── */
+    .banner-safari-install {
       display: flex;
       align-items: center;
       gap: 0.75rem;
-      padding: 0.875rem 1rem;
+      padding: 0.85rem 1rem;
       border-radius: var(--card-radius, 16px);
-      background: rgba(255, 214, 10, 0.15);
+      background: rgba(255, 214, 10, 0.12);
       border: 1px solid rgba(255, 214, 10, 0.3);
       color: #ffd60a;
       cursor: pointer;
 
-      .banner-icon { font-size: 1.5rem; }
+      .banner-icon { font-size: 1.4rem; }
       .banner-content {
         display: flex;
         flex-direction: column;
         strong { font-size: 0.85rem; }
-        span { font-size: 0.75rem; opacity: 0.9; }
+        span { font-size: 0.75rem; opacity: 0.9; line-height: 1.35; }
       }
     }
 
-    .card {
-      background: var(--bg-secondary, #1c1c1e);
-      border: 1px solid var(--border, #38383a);
-      border-radius: var(--card-radius, 16px);
-      padding: 1.25rem;
-    }
-
-    .card-header {
+    .banner-safari-ok {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      margin-bottom: 1rem;
-
-      h3 { font-size: 1.1rem; margin: 0; }
-      .badge-done {
-        font-size: 0.7rem;
-        font-weight: 700;
-        color: var(--success, #30d158);
-        background: rgba(48, 209, 88, 0.15);
-        padding: 0.2rem 0.5rem;
-        border-radius: 8px;
-      }
-    }
-
-    .checkin-row {
-      margin-bottom: 1rem;
-
-      label {
-        display: block;
-        font-size: 0.8rem;
-        color: var(--text-secondary, #8e8e93);
-        margin-bottom: 0.5rem;
-      }
-    }
-
-    .emoji-selector,
-    .energy-selector {
-      display: flex;
       gap: 0.5rem;
-      justify-content: space-between;
+      padding: 0.5rem 0.85rem;
+      border-radius: 10px;
+      background: rgba(48, 209, 88, 0.1);
+      border: 1px solid rgba(48, 209, 88, 0.25);
+      color: var(--success, #30d158);
+      font-size: 0.75rem;
+      font-weight: 600;
+
+      .ok-icon { font-size: 0.9rem; }
     }
 
-    .emoji-btn,
-    .level-btn {
-      flex: 1;
-      padding: 0.5rem 0.25rem;
-      border-radius: var(--input-radius, 12px);
-      border: 1px solid var(--border, #38383a);
-      background: var(--bg-tertiary, #2c2c2e);
-      font-size: 1.25rem;
-      color: var(--text-primary, #fff);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      -webkit-tap-highlight-color: transparent;
-
-      &.selected {
-        background: var(--accent, #ff3b30);
-        border-color: var(--accent, #ff3b30);
-        transform: scale(1.05);
+    /* ─── ACCESOS RÁPIDOS GRID ─── */
+    .quick-access-section {
+      .section-title {
+        font-size: 1.15rem;
+        font-weight: 800;
+        margin: 0 0 0.75rem;
       }
     }
 
-    .level-btn {
-      font-size: 0.85rem;
-      font-weight: 600;
-    }
-
-    .btn-save-checkin {
-      width: 100%;
-      padding: 0.75rem;
-      border-radius: var(--input-radius, 12px);
-      border: none;
-      background: var(--accent, #ff3b30);
-      color: #fff;
-      font-weight: 600;
-      font-size: 0.9rem;
-      cursor: pointer;
-      margin-top: 0.25rem;
-
-      &:active {
-        opacity: 0.8;
-      }
-    }
-
-    .metrics-grid {
+    .quick-access-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       gap: 0.75rem;
     }
 
-    .metric-card {
+    .quick-tile {
       background: var(--bg-secondary, #1c1c1e);
       border: 1px solid var(--border, #38383a);
       border-radius: var(--card-radius, 16px);
-      padding: 1rem 0.75rem;
+      padding: 1rem;
       text-decoration: none;
       color: inherit;
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
+      justify-content: space-between;
+      min-height: 120px;
+      transition: all 0.15s ease;
+      -webkit-tap-highlight-color: transparent;
 
       &:active {
         transform: scale(0.97);
+        background: var(--bg-tertiary, #2c2c2e);
       }
 
-      .metric-top {
+      .tile-top {
         display: flex;
         justify-content: space-between;
-        align-items: center;
+        align-items: flex-start;
+        margin-bottom: 0.5rem;
       }
 
-      .metric-icon { font-size: 1.25rem; }
-      .metric-val {
-        font-size: 1.4rem;
-        font-weight: 800;
-        color: var(--accent, #ff3b30);
-      }
-
-      .metric-label {
-        font-size: 0.75rem;
+      .tile-emoji { font-size: 1.6rem; }
+      .tile-stat {
+        font-size: 0.7rem;
+        background: var(--bg-tertiary, #2c2c2e);
+        padding: 0.2rem 0.45rem;
+        border-radius: 6px;
         color: var(--text-secondary, #8e8e93);
-        font-weight: 500;
+        font-weight: 700;
+      }
+
+      .tile-bottom {
+        h4 { font-size: 0.95rem; font-weight: 700; margin: 0 0 0.2rem; }
+        p { font-size: 0.75rem; color: var(--text-secondary, #8e8e93); margin: 0; line-height: 1.3; }
+      }
+
+      &.shopping-tile {
+        border-color: rgba(255, 59, 48, 0.3);
+        .store-badges {
+          display: flex;
+          flex-direction: column;
+          gap: 0.2rem;
+          align-items: flex-end;
+
+          .badge-d1 {
+            font-size: 0.65rem;
+            font-weight: 800;
+            background: rgba(255, 214, 10, 0.18);
+            color: #ffd60a;
+            padding: 0.15rem 0.35rem;
+            border-radius: 4px;
+          }
+          .badge-exito {
+            font-size: 0.65rem;
+            font-weight: 800;
+            background: rgba(255, 59, 48, 0.18);
+            color: #ff3b30;
+            padding: 0.15rem 0.35rem;
+            border-radius: 4px;
+          }
+        }
+      }
+
+      &.wash-tile {
+        border-color: rgba(10, 132, 255, 0.3);
+        .type-pill-water {
+          font-size: 0.65rem;
+          font-weight: 800;
+          color: #0a84ff;
+          background: rgba(10, 132, 255, 0.15);
+          padding: 0.15rem 0.4rem;
+          border-radius: 6px;
+        }
+      }
+
+      &.heat-tile {
+        border-color: rgba(255, 107, 53, 0.3);
+        .type-pill-fire {
+          font-size: 0.65rem;
+          font-weight: 800;
+          color: #ff6b35;
+          background: rgba(255, 107, 53, 0.15);
+          padding: 0.15rem 0.4rem;
+          border-radius: 6px;
+        }
+      }
+
+      .tile-rotom-img {
+        width: 38px;
+        height: 38px;
+        object-fit: contain;
+
+        &.wash-glow { filter: drop-shadow(0 0 6px rgba(10, 132, 255, 0.5)); }
+        &.heat-glow { filter: drop-shadow(0 0 6px rgba(255, 107, 53, 0.5)); }
       }
     }
 
+    /* ─── Highlights ─── */
     .quick-wiki {
       .section-header {
         display: flex;
@@ -348,7 +433,7 @@ import type { DailyCheckIn } from '../../core/models/state.models';
         align-items: center;
         margin-bottom: 0.75rem;
 
-        h3 { font-size: 1.1rem; margin: 0; }
+        h3 { font-size: 1.15rem; font-weight: 800; margin: 0; }
         .see-all {
           font-size: 0.8rem;
           color: var(--accent, #ff3b30);
@@ -365,20 +450,7 @@ import type { DailyCheckIn } from '../../core/models/state.models';
       padding-bottom: 0.5rem;
       scroll-snap-type: x mandatory;
       -webkit-overflow-scrolling: touch;
-
       &::-webkit-scrollbar { display: none; }
-    }
-
-    @keyframes rotomFloat {
-      0% {
-        transform: translateY(0px) rotate(0deg);
-      }
-      50% {
-        transform: translateY(-6px) rotate(2deg);
-      }
-      100% {
-        transform: translateY(-12px) rotate(-2deg);
-      }
     }
 
     .wiki-card-mini {
@@ -391,23 +463,24 @@ import type { DailyCheckIn } from '../../core/models/state.models';
       text-decoration: none;
       color: inherit;
 
-      &:active {
-        transform: scale(0.97);
-      }
+      &:active { transform: scale(0.97); }
 
       .cover-placeholder {
-        height: 90px;
+        height: 70px;
         background: linear-gradient(135deg, #2c2c2e, #1c1c1e);
         display: flex;
         align-items: center;
         justify-content: center;
 
-        .cover-type { font-size: 2.25rem; }
+        .mini-sprite {
+          width: 36px;
+          height: 36px;
+          image-rendering: pixelated;
+        }
       }
 
       .mini-info {
         padding: 0.65rem 0.75rem;
-
         h4 {
           font-size: 0.85rem;
           margin: 0;
@@ -415,18 +488,29 @@ import type { DailyCheckIn } from '../../core/models/state.models';
           overflow: hidden;
           text-overflow: ellipsis;
         }
-
         .mini-meta {
           font-size: 0.7rem;
           color: var(--text-secondary, #8e8e93);
         }
       }
     }
+
+    @keyframes rotomFloat {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-5px); }
+      100% { transform: translateY(-10px); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
   `],
 })
 export class HomeComponent implements OnInit {
   readonly storage = inject(StorageService);
   readonly catalog = inject(CatalogService);
+  readonly sync = inject(SyncService);
 
   readonly todayStr = new Date().toISOString().slice(0, 10);
   readonly todayFormatted = new Intl.DateTimeFormat('es-CL', {
@@ -435,49 +519,11 @@ export class HomeComponent implements OnInit {
     month: 'long',
   }).format(new Date());
 
-  readonly moodOptions: { val: 1 | 2 | 3 | 4 | 5; emoji: string }[] = [
-    { val: 1, emoji: '😫' },
-    { val: 2, emoji: '😕' },
-    { val: 3, emoji: '😐' },
-    { val: 4, emoji: '🙂' },
-    { val: 5, emoji: '🔥' },
-  ];
-
-  selectedMood: 1 | 2 | 3 | 4 | 5 = 4;
-  selectedEnergy: number = 3;
-  todayCheckIn = signal<DailyCheckIn | null>(null);
   todayEventsCount = 0;
 
   async ngOnInit(): Promise<void> {
-    const existing = await this.storage.getCheckInForDate(this.todayStr);
-    if (existing) {
-      this.todayCheckIn.set(existing);
-      this.selectedMood = existing.mood;
-      this.selectedEnergy = existing.energyLevel;
-    }
-
     const events = await this.storage.getEventsForDate(this.todayStr);
     this.todayEventsCount = events.length;
-  }
-
-  setMood(val: 1 | 2 | 3 | 4 | 5): void {
-    this.selectedMood = val;
-  }
-
-  setEnergy(val: number): void {
-    this.selectedEnergy = val;
-  }
-
-  async saveCheckIn(): Promise<void> {
-    const checkIn: Omit<DailyCheckIn, 'id'> = {
-      date: this.todayStr,
-      mood: this.selectedMood,
-      energyLevel: this.selectedEnergy as 1 | 2 | 3 | 4 | 5,
-      createdAt: new Date().toISOString(),
-    };
-
-    await this.storage.addCheckIn(checkIn);
-    this.todayCheckIn.set(checkIn as DailyCheckIn);
   }
 
   async requestPersistence(): Promise<void> {

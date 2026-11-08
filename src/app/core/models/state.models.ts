@@ -1,5 +1,8 @@
 // ─── Estado Dinámico Persistido en IndexedDB ───
 
+/** Tiendas de compras frecuentes */
+export type SupermarketStore = 'Éxito' | 'D1' | 'Otro';
+
 /** Progreso de un step checkeable (receta o lavado) */
 export interface StepProgress {
   id?: number;               // auto-increment PK en Dexie
@@ -14,10 +17,12 @@ export interface ShoppingItem {
   id?: number;
   name: string;
   quantity: string;
-  category: string;
+  store: SupermarketStore;   // 'Éxito' | 'D1' | 'Otro'
+  category: string;          // vegetal, proteína, lácteo, etc.
   checked: boolean;
   sourceRecipeId?: string;   // de qué receta se empujó
   addedAt: string;
+  updatedAt?: string;
 }
 
 /** Tarea en la To-Do list */
@@ -56,7 +61,7 @@ export interface CalendarEvent {
   createdAt: string;
 }
 
-/** Settings del usuario (PIN hash, etc.) */
+/** Settings del usuario (PIN hash, sync key, etc.) */
 export interface UserSettings {
   id?: number;
   key: string;

@@ -2,7 +2,8 @@ import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { StorageService } from '../../core/services/storage.service';
-import type { ShoppingItem } from '../../core/models/state.models';
+import { SyncService } from '../../core/services/sync.service';
+import type { ShoppingItem, SupermarketStore } from '../../core/models/state.models';
 
 @Component({
   selector: 'app-shopping',
@@ -10,7 +11,7 @@ import type { ShoppingItem } from '../../core/models/state.models';
   imports: [CommonModule, FormsModule],
   template: `
     <div class="shopping-container">
-      <!-- Page Header -->
+      <!-- Page Header & Sync Status -->
       <header class="page-header">
         <div class="header-text">
           <div class="title-with-sprite">
@@ -24,12 +25,56 @@ import type { ShoppingItem } from '../../core/models/state.models';
 
         <div class="header-actions">
           @if (storage.shoppingList().length > 0) {
-            <button class="btn-clear" (click)="storage.clearCheckedItems()" title="Quitar productos ya comprados">
+            <button class="btn-clear" (click)="storage.clearCheckedItems()" title="Quitar productos comprados">
               Limpiar comprados
             </button>
           }
         </div>
       </header>
+
+      <!-- PC ↔ Celular Sync Bar -->
+      <div class="sync-strip" (click)="triggerSync()">
+        <div class="sync-status-info">
+          <span class="status-circle" [class]="sync.syncState()"></span>
+          <span class="status-label">{{ sync.statusMessage() }}</span>
+        </div>
+        <button class="btn-mini-sync" [disabled]="sync.syncState() === 'syncing'">
+          {{ sync.syncState() === 'syncing' ? '...' : 'Sincronizar 🔄' }}
+        </button>
+      </div>
+
+      <!-- Supermarket Store Filter (D1 vs Éxito vs Todos) -->
+      <div class="store-filter-bar">
+        <button
+          type="button"
+          class="store-tab"
+          [class.active]="activeStoreFilter() === 'all'"
+          (click)="activeStoreFilter.set('all')"
+        >
+          <span class="tab-badge-all">🌐</span>
+          Todos ({{ storage.shoppingList().length }})
+        </button>
+
+        <button
+          type="button"
+          class="store-tab tab-d1"
+          [class.active]="activeStoreFilter() === 'D1'"
+          (click)="activeStoreFilter.set('D1')"
+        >
+          <span class="store-dot dot-d1"></span>
+          D1 ({{ storage.shoppingByStore().d1.length }})
+        </button>
+
+        <button
+          type="button"
+          class="store-tab tab-exito"
+          [class.active]="activeStoreFilter() === 'Éxito'"
+          (click)="activeStoreFilter.set('Éxito')"
+        >
+          <span class="store-dot dot-exito"></span>
+          Éxito ({{ storage.shoppingByStore().exito.length }})
+        </button>
+      </div>
 
       <!-- Search Bar (Buscar) -->
       <div class="search-box">
@@ -37,7 +82,7 @@ import type { ShoppingItem } from '../../core/models/state.models';
         <input
           type="text"
           [(ngModel)]="searchQuery"
-          placeholder="Buscar en la lista (ej: leche, cebolla)..."
+          placeholder="Buscar en {{ activeStoreLabel() }}..."
           class="search-input"
         />
         @if (searchQuery) {
@@ -45,13 +90,43 @@ import type { ShoppingItem } from '../../core/models/state.models';
         }
       </div>
 
-      <!-- Quick Add Section (Añadir) -->
+      <!-- Quick Add Section (Añadir con selección D1 / Éxito) -->
       <div class="add-section">
+        <div class="store-selector-row">
+          <span class="add-label">Comprar en:</span>
+          <div class="store-toggle-group">
+            <button
+              type="button"
+              class="btn-store-pick d1"
+              [class.selected]="newItemStore === 'D1'"
+              (click)="newItemStore = 'D1'"
+            >
+              🟡 D1
+            </button>
+            <button
+              type="button"
+              class="btn-store-pick exito"
+              [class.selected]="newItemStore === 'Éxito'"
+              (click)="newItemStore = 'Éxito'"
+            >
+              🔴 Éxito
+            </button>
+            <button
+              type="button"
+              class="btn-store-pick otro"
+              [class.selected]="newItemStore === 'Otro'"
+              (click)="newItemStore = 'Otro'"
+            >
+              📦 Otro
+            </button>
+          </div>
+        </div>
+
         <div class="add-inputs-row">
           <input
             type="text"
             [(ngModel)]="newItemName"
-            placeholder="Añadir producto..."
+            placeholder="Ej: Leche, Arroz, Pollo..."
             (keyup.enter)="addItem()"
             class="input-name"
           />
@@ -67,7 +142,7 @@ import type { ShoppingItem } from '../../core/models/state.models';
           </button>
         </div>
 
-        <!-- Category Selector Chips -->
+        <!-- Optional Category Chips (Vegetal, Carne, etc.) -->
         <div class="category-chips">
           @for (cat of availableCategories; track cat.id) {
             <button
@@ -93,6 +168,34 @@ import type { ShoppingItem } from '../../core/models/state.models';
             </div>
 
             <div class="edit-form">
+              <label>Supermercado</label>
+              <div class="store-toggle-group sheet-store-toggle">
+                <button
+                  type="button"
+                  class="btn-store-pick d1"
+                  [class.selected]="editStore === 'D1'"
+                  (click)="editStore = 'D1'"
+                >
+                  🟡 D1
+                </button>
+                <button
+                  type="button"
+                  class="btn-store-pick exito"
+                  [class.selected]="editStore === 'Éxito'"
+                  (click)="editStore = 'Éxito'"
+                >
+                  🔴 Éxito
+                </button>
+                <button
+                  type="button"
+                  class="btn-store-pick otro"
+                  [class.selected]="editStore === 'Otro'"
+                  (click)="editStore = 'Otro'"
+                >
+                  📦 Otro
+                </button>
+              </div>
+
               <label>Nombre del producto</label>
               <input
                 type="text"
@@ -129,14 +232,14 @@ import type { ShoppingItem } from '../../core/models/state.models';
                   class="btn-delete-confirm"
                   (click)="deleteItem(item.id!)"
                 >
-                  🗑️ Quitar producto
+                  🗑️ Quitar
                 </button>
                 <button
                   type="button"
                   class="btn-save-confirm"
                   (click)="saveEdit(item.id!)"
                 >
-                  Guardar cambios
+                  Guardar
                 </button>
               </div>
             </div>
@@ -144,73 +247,82 @@ import type { ShoppingItem } from '../../core/models/state.models';
         </div>
       }
 
-      <!-- Items List & Empty State -->
-      @if (filteredList().length === 0) {
+      <!-- Items List by Store & Empty State -->
+      @if (filteredItems().length === 0) {
         <div class="empty-state">
           <img src="assets/images/rotom/rotom-default.webp" alt="Rotom" class="empty-rotom-img" />
           @if (searchQuery) {
             <h3>Sin resultados</h3>
             <p>No se encontraron productos para "{{ searchQuery }}".</p>
           } @else {
-            <h3>¡Tu lista está vacía!</h3>
-            <p>Añade lo que necesitas arriba o pulsa "Enviar a compras" en las recetas de la Wiki.</p>
+            <h3>¡Nada pendiente en {{ activeStoreLabel() }}!</h3>
+            <p>Añade lo que necesitas arriba o usa "Enviar a compras" desde las recetas.</p>
           }
         </div>
       } @else {
-        <div class="categories-list">
-          @for (entry of groupedFilteredItems() | keyvalue; track entry.key) {
-            <section class="category-group">
-              <div class="category-header">
-                <span class="cat-pill">
-                  {{ getCategoryEmoji(entry.key) }} {{ entry.key | titlecase }}
-                </span>
-                <span class="cat-count">{{ entry.value.length }}</span>
-              </div>
-
-              <div class="items-list">
-                @for (item of entry.value; track item.id) {
-                  <div
-                    class="shopping-row"
-                    [class.checked]="item.checked"
-                    (click)="storage.toggleShoppingItem(item.id!)"
-                  >
-                    <!-- One-handed Large Tap Circle -->
-                    <div class="checkbox-circle">
-                      @if (item.checked) {
-                        <span>✓</span>
-                      }
-                    </div>
-
-                    <div class="item-info">
-                      <span class="item-name">{{ item.name }}</span>
-                      @if (item.quantity) {
-                        <span class="item-qty">{{ item.quantity }}</span>
-                      }
-                    </div>
-
-                    <!-- Row Action Buttons: Editar y Quitar -->
-                    <div class="row-actions" (click)="$event.stopPropagation()">
-                      <button
-                        type="button"
-                        class="btn-icon-action btn-edit"
-                        (click)="startEdit(item)"
-                        title="Editar producto"
-                      >
-                        ✏️
-                      </button>
-                      <button
-                        type="button"
-                        class="btn-icon-action btn-delete"
-                        (click)="storage.removeShoppingItem(item.id!)"
-                        title="Quitar producto"
-                      >
-                        🗑️
-                      </button>
-                    </div>
+        <!-- Grouped by Store (in 'all' mode) or Single List -->
+        <div class="store-sections-list">
+          @for (group of storeGroups(); track group.storeName) {
+            @if (group.items.length > 0) {
+              <section class="store-group-card">
+                <div class="store-group-header">
+                  <div class="store-title-badge" [class.d1-badge]="group.storeName === 'D1'" [class.exito-badge]="group.storeName === 'Éxito'">
+                    <span class="store-icon">{{ group.storeName === 'D1' ? '🟡' : (group.storeName === 'Éxito' ? '🔴' : '📦') }}</span>
+                    <strong>{{ group.storeName }}</strong>
                   </div>
-                }
-              </div>
-            </section>
+                  <span class="store-items-count">{{ group.items.length }} producto{{ group.items.length === 1 ? '' : 's' }}</span>
+                </div>
+
+                <div class="items-list">
+                  @for (item of group.items; track item.id) {
+                    <div
+                      class="shopping-row"
+                      [class.checked]="item.checked"
+                      (click)="toggleItem(item.id!)"
+                    >
+                      <!-- One-handed Large Tap Circle -->
+                      <div class="checkbox-circle">
+                        @if (item.checked) {
+                          <span>✓</span>
+                        }
+                      </div>
+
+                      <div class="item-info">
+                        <div class="item-name-row">
+                          <span class="item-name">{{ item.name }}</span>
+                          @if (item.category) {
+                            <span class="cat-pill-mini">{{ getCategoryEmoji(item.category) }}</span>
+                          }
+                        </div>
+                        @if (item.quantity) {
+                          <span class="item-qty">{{ item.quantity }}</span>
+                        }
+                      </div>
+
+                      <!-- Row Action Buttons: Editar y Quitar -->
+                      <div class="row-actions" (click)="$event.stopPropagation()">
+                        <button
+                          type="button"
+                          class="btn-icon-action btn-edit"
+                          (click)="startEdit(item)"
+                          title="Editar producto"
+                        >
+                          ✏️
+                        </button>
+                        <button
+                          type="button"
+                          class="btn-icon-action btn-delete"
+                          (click)="deleteItem(item.id!)"
+                          title="Quitar producto"
+                        >
+                          🗑️
+                        </button>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </section>
+            }
           }
         </div>
       }
@@ -220,7 +332,7 @@ import type { ShoppingItem } from '../../core/models/state.models';
     .shopping-container {
       display: flex;
       flex-direction: column;
-      gap: 1.25rem;
+      gap: 1.15rem;
     }
 
     .page-header {
@@ -262,7 +374,95 @@ import type { ShoppingItem } from '../../core/models/state.models';
       }
     }
 
-    /* ─── Search Bar (Buscar) ─── */
+    /* ─── Sync Status Bar (PC ↔ Celular) ─── */
+    .sync-strip {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-secondary, #1c1c1e);
+      border: 1px solid var(--border, #38383a);
+      border-radius: 12px;
+      padding: 0.5rem 0.85rem;
+      cursor: pointer;
+
+      .sync-status-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        .status-circle {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: #8e8e93;
+
+          &.synced { background: var(--success, #30d158); }
+          &.syncing { background: var(--warning, #ffd60a); }
+          &.offline { background: #636366; }
+        }
+
+        .status-label {
+          font-size: 0.75rem;
+          color: var(--text-secondary, #8e8e93);
+        }
+      }
+
+      .btn-mini-sync {
+        background: none;
+        border: none;
+        color: var(--accent, #ff3b30);
+        font-size: 0.75rem;
+        font-weight: 700;
+        cursor: pointer;
+      }
+    }
+
+    /* ─── Supermarket Store Filter (D1 vs Éxito vs Todos) ─── */
+    .store-filter-bar {
+      display: flex;
+      background: var(--bg-tertiary, #2c2c2e);
+      padding: 3px;
+      border-radius: 14px;
+      gap: 3px;
+
+      .store-tab {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.35rem;
+        padding: 0.6rem 0.25rem;
+        border: none;
+        background: transparent;
+        color: var(--text-secondary, #8e8e93);
+        font-size: 0.8rem;
+        font-weight: 700;
+        border-radius: 11px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        -webkit-tap-highlight-color: transparent;
+
+        .store-dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+
+          &.dot-d1 { background: #ffd60a; }
+          &.dot-exito { background: #ff3b30; }
+        }
+
+        &.active {
+          background: var(--bg-secondary, #1c1c1e);
+          color: #fff;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+
+          &.tab-d1 { color: #ffd60a; }
+          &.tab-exito { color: #ff3b30; }
+        }
+      }
+    }
+
+    /* ─── Search Bar ─── */
     .search-box {
       display: flex;
       align-items: center;
@@ -290,7 +490,7 @@ import type { ShoppingItem } from '../../core/models/state.models';
       }
     }
 
-    /* ─── Add Section (Añadir) ─── */
+    /* ─── Add Section ─── */
     .add-section {
       background: var(--bg-secondary, #1c1c1e);
       border: 1px solid var(--border, #38383a);
@@ -298,7 +498,53 @@ import type { ShoppingItem } from '../../core/models/state.models';
       padding: 0.85rem;
       display: flex;
       flex-direction: column;
-      gap: 0.65rem;
+      gap: 0.75rem;
+
+      .store-selector-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .add-label {
+          font-size: 0.75rem;
+          color: var(--text-secondary, #8e8e93);
+          font-weight: 600;
+        }
+      }
+
+      .store-toggle-group {
+        display: flex;
+        gap: 0.35rem;
+
+        .btn-store-pick {
+          background: var(--bg-tertiary, #2c2c2e);
+          border: 1px solid var(--border, #38383a);
+          color: var(--text-secondary, #8e8e93);
+          font-size: 0.75rem;
+          font-weight: 700;
+          padding: 0.35rem 0.6rem;
+          border-radius: 8px;
+          cursor: pointer;
+
+          &.selected {
+            &.d1 {
+              background: rgba(255, 214, 10, 0.2);
+              border-color: #ffd60a;
+              color: #ffd60a;
+            }
+            &.exito {
+              background: rgba(255, 59, 48, 0.2);
+              border-color: #ff3b30;
+              color: #ff3b30;
+            }
+            &.otro {
+              background: var(--bg-elevated, #3a3a3c);
+              border-color: #fff;
+              color: #fff;
+            }
+          }
+        }
+      }
 
       .add-inputs-row {
         display: flex;
@@ -359,7 +605,6 @@ import type { ShoppingItem } from '../../core/models/state.models';
         padding: 0.35rem 0.6rem;
         border-radius: 14px;
         cursor: pointer;
-        transition: all 0.15s ease;
 
         &.selected {
           background: rgba(255, 59, 48, 0.2);
@@ -370,7 +615,148 @@ import type { ShoppingItem } from '../../core/models/state.models';
       }
     }
 
-    /* ─── Edit Bottom Sheet (Editar) ─── */
+    /* ─── Store Sections & Rows ─── */
+    .store-sections-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .store-group-card {
+      .store-group-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.6rem;
+
+        .store-title-badge {
+          display: flex;
+          align-items: center;
+          gap: 0.35rem;
+          font-size: 0.95rem;
+
+          &.d1-badge { color: #ffd60a; }
+          &.exito-badge { color: #ff3b30; }
+        }
+
+        .store-items-count {
+          font-size: 0.75rem;
+          color: var(--text-secondary, #8e8e93);
+        }
+      }
+
+      .items-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+    }
+
+    .shopping-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      min-height: 54px;
+      padding: 0.65rem 0.85rem;
+      background: var(--bg-secondary, #1c1c1e);
+      border: 1px solid var(--border, #38383a);
+      border-radius: var(--input-radius, 12px);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      transition: all 0.15s ease;
+
+      &:active {
+        background: var(--bg-tertiary, #2c2c2e);
+      }
+
+      &.checked {
+        opacity: 0.45;
+        background: transparent;
+
+        .checkbox-circle {
+          background: var(--success, #30d158);
+          border-color: var(--success, #30d158);
+          color: #000;
+        }
+
+        .item-name {
+          text-decoration: line-through;
+        }
+      }
+
+      .checkbox-circle {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: 2px solid var(--border, #555);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        font-weight: 800;
+        flex-shrink: 0;
+      }
+
+      .item-info {
+        flex: 1;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        overflow: hidden;
+
+        .item-name-row {
+          display: flex;
+          align-items: center;
+          gap: 0.4rem;
+          overflow: hidden;
+        }
+
+        .item-name {
+          font-size: 0.95rem;
+          font-weight: 500;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .cat-pill-mini {
+          font-size: 0.8rem;
+        }
+
+        .item-qty {
+          font-size: 0.85rem;
+          color: var(--accent, #ff3b30);
+          font-weight: 700;
+          margin-left: 0.5rem;
+          flex-shrink: 0;
+        }
+      }
+
+      .row-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        flex-shrink: 0;
+
+        .btn-icon-action {
+          background: none;
+          border: none;
+          font-size: 0.95rem;
+          padding: 0.4rem;
+          border-radius: 8px;
+          cursor: pointer;
+          -webkit-tap-highlight-color: transparent;
+
+          &:active {
+            transform: scale(0.9);
+            background: var(--bg-tertiary, #2c2c2e);
+          }
+        }
+      }
+    }
+
+    /* ─── Edit Bottom Sheet ─── */
     .edit-backdrop {
       position: fixed;
       inset: 0;
@@ -475,7 +861,6 @@ import type { ShoppingItem } from '../../core/models/state.models';
       to { transform: translateY(0); }
     }
 
-    /* ─── Empty State ─── */
     .empty-state {
       text-align: center;
       padding: 2.5rem 1rem;
@@ -488,154 +873,28 @@ import type { ShoppingItem } from '../../core/models/state.models';
         height: 80px;
         object-fit: contain;
         margin-bottom: 0.75rem;
-        animation: rotomFloat 3s ease-in-out infinite alternate;
       }
       h3 { font-size: 1.15rem; margin: 0 0 0.5rem; }
       p { font-size: 0.85rem; color: var(--text-secondary, #8e8e93); margin: 0; }
-    }
-
-    /* ─── Shopping Rows (Quitar & Editar) ─── */
-    .categories-list {
-      display: flex;
-      flex-direction: column;
-      gap: 1.25rem;
-    }
-
-    .category-group {
-      .category-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.5rem;
-
-        .cat-pill {
-          font-size: 0.8rem;
-          font-weight: 700;
-          color: var(--text-secondary, #8e8e93);
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-
-        .cat-count {
-          font-size: 0.75rem;
-          background: var(--bg-tertiary, #2c2c2e);
-          padding: 0.15rem 0.5rem;
-          border-radius: 10px;
-          color: var(--text-secondary, #8e8e93);
-        }
-      }
-
-      .items-list {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-      }
-    }
-
-    .shopping-row {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      min-height: 54px;
-      padding: 0.65rem 0.85rem;
-      background: var(--bg-secondary, #1c1c1e);
-      border: 1px solid var(--border, #38383a);
-      border-radius: var(--input-radius, 12px);
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
-      transition: all 0.15s ease;
-
-      &:active {
-        background: var(--bg-tertiary, #2c2c2e);
-      }
-
-      &.checked {
-        opacity: 0.45;
-        background: transparent;
-
-        .checkbox-circle {
-          background: var(--success, #30d158);
-          border-color: var(--success, #30d158);
-          color: #000;
-        }
-
-        .item-name {
-          text-decoration: line-through;
-        }
-      }
-
-      .checkbox-circle {
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        border: 2px solid var(--border, #555);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.85rem;
-        font-weight: 800;
-        flex-shrink: 0;
-      }
-
-      .item-info {
-        flex: 1;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        overflow: hidden;
-
-        .item-name {
-          font-size: 0.95rem;
-          font-weight: 500;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-        .item-qty {
-          font-size: 0.85rem;
-          color: var(--accent, #ff3b30);
-          font-weight: 700;
-          margin-left: 0.5rem;
-          flex-shrink: 0;
-        }
-      }
-
-      .row-actions {
-        display: flex;
-        align-items: center;
-        gap: 0.25rem;
-        flex-shrink: 0;
-
-        .btn-icon-action {
-          background: none;
-          border: none;
-          font-size: 0.95rem;
-          padding: 0.4rem;
-          border-radius: 8px;
-          cursor: pointer;
-          -webkit-tap-highlight-color: transparent;
-
-          &:active {
-            transform: scale(0.9);
-            background: var(--bg-tertiary, #2c2c2e);
-          }
-        }
-      }
     }
   `],
 })
 export class ShoppingComponent {
   readonly storage = inject(StorageService);
+  readonly sync = inject(SyncService);
 
+  activeStoreFilter = signal<'all' | 'D1' | 'Éxito'>('all');
   searchQuery = '';
+
   newItemName = '';
   newItemQty = '';
+  newItemStore: SupermarketStore = 'D1';
   newItemCategory = 'vegetal';
 
   editingItem = signal<ShoppingItem | null>(null);
   editName = '';
   editQty = '';
+  editStore: SupermarketStore = 'D1';
   editCategory = 'vegetal';
 
   readonly availableCategories = [
@@ -648,29 +907,51 @@ export class ShoppingComponent {
     { id: 'otro', name: 'Otros', emoji: '📦' },
   ];
 
-  readonly filteredList = computed(() => {
+  activeStoreLabel = computed(() => {
+    switch (this.activeStoreFilter()) {
+      case 'D1': return 'D1';
+      case 'Éxito': return 'Éxito';
+      default: return 'Todas las tiendas';
+    }
+  });
+
+  readonly filteredItems = computed(() => {
     let list = this.storage.shoppingList();
+    const store = this.activeStoreFilter();
+    if (store !== 'all') {
+      list = list.filter((item) => item.store === store);
+    }
+
     const q = this.searchQuery.toLowerCase().trim();
     if (q) {
       list = list.filter(
         (item) =>
           item.name.toLowerCase().includes(q) ||
           (item.quantity && item.quantity.toLowerCase().includes(q)) ||
-          item.category.toLowerCase().includes(q)
+          item.category.toLowerCase().includes(q) ||
+          item.store.toLowerCase().includes(q)
       );
     }
     return list;
   });
 
-  readonly groupedFilteredItems = computed(() => {
-    const items = this.filteredList();
-    const grouped = new Map<string, ShoppingItem[]>();
-    for (const item of items) {
-      const cat = item.category || 'otro';
-      if (!grouped.has(cat)) grouped.set(cat, []);
-      grouped.get(cat)!.push(item);
+  readonly storeGroups = computed(() => {
+    const items = this.filteredItems();
+    const filter = this.activeStoreFilter();
+
+    if (filter === 'D1') {
+      return [{ storeName: 'D1' as SupermarketStore, items }];
     }
-    return grouped;
+    if (filter === 'Éxito') {
+      return [{ storeName: 'Éxito' as SupermarketStore, items }];
+    }
+
+    // Modo 'all': agrupar por D1, Éxito y Otros
+    return [
+      { storeName: 'D1' as SupermarketStore, items: items.filter((i) => i.store === 'D1') },
+      { storeName: 'Éxito' as SupermarketStore, items: items.filter((i) => i.store === 'Éxito') },
+      { storeName: 'Otro' as SupermarketStore, items: items.filter((i) => i.store !== 'D1' && i.store !== 'Éxito') },
+    ];
   });
 
   async addItem(): Promise<void> {
@@ -680,6 +961,7 @@ export class ShoppingComponent {
     await this.storage.addShoppingItem({
       name,
       quantity: this.newItemQty.trim(),
+      store: this.newItemStore,
       category: this.newItemCategory,
       checked: false,
       addedAt: new Date().toISOString(),
@@ -687,12 +969,21 @@ export class ShoppingComponent {
 
     this.newItemName = '';
     this.newItemQty = '';
+
+    // Auto-sync a la nube en segundo plano si hay red
+    this.sync.pushToCloud();
+  }
+
+  async toggleItem(id: number): Promise<void> {
+    await this.storage.toggleShoppingItem(id);
+    this.sync.pushToCloud();
   }
 
   startEdit(item: ShoppingItem): void {
     this.editingItem.set(item);
     this.editName = item.name;
     this.editQty = item.quantity || '';
+    this.editStore = item.store || 'D1';
     this.editCategory = item.category || 'otro';
   }
 
@@ -707,15 +998,22 @@ export class ShoppingComponent {
     await this.storage.updateShoppingItem(id, {
       name,
       quantity: this.editQty.trim(),
+      store: this.editStore,
       category: this.editCategory,
     });
 
     this.closeEdit();
+    this.sync.pushToCloud();
   }
 
   async deleteItem(id: number): Promise<void> {
     await this.storage.removeShoppingItem(id);
     this.closeEdit();
+    this.sync.pushToCloud();
+  }
+
+  async triggerSync(): Promise<void> {
+    await this.sync.syncNow();
   }
 
   getCategoryEmoji(cat: string): string {
